@@ -1,0 +1,78 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: lms-postgres
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-lms}
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  node:
+    build:
+      context: .
+      target: prod
+    volumes:
+      - files:/files
+    env_file:
+      - .env
+    secrets:
+      - email_key
+      - pepper
+    environment:
+      EMAIL_KEY_FILE: /run/secrets/email_key
+      PEPPER_FILE: /run/secrets/pepper
+      DATABASE_URL: postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-lms}?schema=public
+    depends_on:
+      postgres:
+        condition: service_healthy
+    logging:
+      driver: local
+      options:
+        max-size: '20m'
+        max-file: '5'
+    restart: unless-stopped
+    stop_grace_period: 10s
+
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./front:/front:ro
+      - files:/files:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - node
+    env_file:
+      - .env
+    logging:
+      driver: local
+      options:
+        max-size: '20m'
+        max-file: '5'
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
+  files:
+  postgres_data:
+
+secrets:
+  email_key:
+    file: ./secrets/email_key.txt
+  pepper:
+    file: ./secrets/pepper.txt
