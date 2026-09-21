@@ -43,7 +43,6 @@ export class AuthController {
 
   @Public()
   @Post('user')
-  @HttpCode(HttpStatus.CREATED)
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
@@ -80,7 +79,6 @@ export class AuthController {
   }
 
   @Get('session')
-  @HttpCode(HttpStatus.OK)
   getSession(@CurrentUser() session: SessionData) {
     return {
       title: 'valida',
@@ -89,7 +87,6 @@ export class AuthController {
   }
 
   @Put('password/update')
-  @HttpCode(HttpStatus.OK)
   async updatePassword(
     @Body() dto: UpdatePasswordDto,
     @CurrentUser('user_id') userId: number,
@@ -134,7 +131,6 @@ export class AuthController {
 
   @Roles('admin')
   @Get('users/search')
-  @HttpCode(HttpStatus.OK)
   async searchUsers(
     @Query() query: UsersQueryDto,
     @Res({ passthrough: true }) res: Response,
