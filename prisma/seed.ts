@@ -1,82 +1,15 @@
 import 'dotenv/config';
-import { readFileSync, existsSync } from 'node:fs';
-import { resolve } from 'node:path';
-import {
-  type BinaryLike,
-  type ScryptOptions,
-  createHmac,
-  randomBytes,
-  scrypt,
-} from 'node:crypto';
-import { promisify } from 'node:util';
 import { PrismaClient, Role } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import pg from 'pg';
+import { PasswordService } from '../src/common/security/password.service.js';
+import { DATABASE_URL, PEPPER } from '../src/common/config/env.js';
 
-const randomBytesAsync = promisify(randomBytes);
-const scryptAsync: (
-  password: BinaryLike,
-  salt: BinaryLike,
-  keylen: number,
-  options?: ScryptOptions,
-) => Promise<Buffer> = promisify(scrypt);
-
-function getPepper(): string {
-  if (process.env.PEPPER) {
-    return process.env.PEPPER;
-  }
-  const pepperFilePath = process.env.PEPPER_FILE || resolve(process.cwd(), 'secrets/pepper.txt');
-  if (existsSync(pepperFilePath)) {
-    return readFileSync(pepperFilePath, 'utf-8').trim();
-  }
-  return 'default_dev_pepper_secret';
-}
-
-class PasswordHelper {
-  private pepper: string;
-  private norm = 'NFC';
-  private scryptOptions: ScryptOptions = {
-    N: 2 ** 14,
-    r: 8,
-    p: 1,
-  };
-  private dkLen = 32;
-  private saltLen = 16;
-
-  constructor(pepper: string) {
-    this.pepper = pepper;
-  }
-
-  async hash(password: string): Promise<string> {
-    const passwordNormalized = password.normalize(this.norm);
-    const passwordHmac = createHmac('sha256', this.pepper)
-      .update(passwordNormalized)
-      .digest();
-
-    const salt = await randomBytesAsync(this.saltLen);
-    const dk = await scryptAsync(
-      passwordHmac,
-      salt,
-      this.dkLen,
-      this.scryptOptions,
-    );
-
-    return (
-      `scrypt$v=1$norm=${this.norm}$N=${this.scryptOptions.N},r=${this.scryptOptions.r},p=${this.scryptOptions.p}` +
-      `$${salt.toString('hex')}$${dk.toString('hex')}`
-    );
-  }
-}
-
-const connectionString =
-  process.env.DATABASE_URL ||
-  'postgresql://postgres:postgres@localhost:5432/lms?schema=public';
-const pool = new pg.Pool({ connectionString });
+const pool = new pg.Pool({ connectionString: DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
-const pepper = getPepper();
-const passHelper = new PasswordHelper(pepper);
+const passService = new PasswordService(PEPPER);
 const DEFAULT_PASSWORD = 'P@ssw0rd123';
 
 const coursesData = [
@@ -313,7 +246,7 @@ const usersData = [
 
 async function main() {
   console.log('🌱 Iniciando Seed autônomo no PostgreSQL...');
-  const defaultPasswordHash = await passHelper.hash(DEFAULT_PASSWORD);
+  const defaultPasswordHash = await passService.hash(DEFAULT_PASSWORD);
 
   // 1. Criando ou atualizando Cursos e suas Aulas
   console.log(`📚 Semeando ${coursesData.length} cursos e suas respectivas aulas...`);
