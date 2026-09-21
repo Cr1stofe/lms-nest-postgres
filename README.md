@@ -1,124 +1,142 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# 🚀 LMS Backend (NestJS + PostgreSQL 18 + Prisma 7)
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+Backend corporativo para plataforma LMS (Learning Management System), desenvolvido com **NestJS**, **PostgreSQL 18**, **Prisma ORM 7**, **TypeScript** e **Vitest**.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+---
 
-## Description
+## 🛠️ Tecnologias & Arquitetura
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Framework:** [NestJS](https://nestjs.com/) (TypeScript, Arquitetura Modular, Injeção de Dependências)
+- **Banco de Dados:** [PostgreSQL 18](https://www.postgresql.org/) via Docker
+- **ORM & Driver:** [Prisma 7](https://www.prisma.io/) com `@prisma/adapter-pg` e `pg.Pool`
+- **Validação & DTOs:** `class-validator` e `class-transformer`
+- **Autenticação & Sessões:** Cookies `__Secure-sid` (HttpOnly, SameSite: Lax), RBAC (`user`, `admin`), Criptografia `scrypt` com salt, pepper e normalização NFC
+- **Certificados:** Emissão de PDF com [jsPDF](https://github.com/parallax/jsPDF)
+- **Armazenamento & Streaming:** Uploads binários via `application/octet-stream`, entrega com cache `ETag` (304 Not Modified) e `X-Accel-Redirect`
+- **Proxy Reverso:** [Caddy 2](https://caddyserver.com/) com terminação TLS automática
+- **Testes & Qualidade:** [Vitest](https://vitest.dev/) (Unitários e E2E) e [Oxlint](https://oxc.rs/)
 
-## Project setup
+---
 
-```bash
-$ npm install
+## 📂 Estrutura do Projeto
+
+```
+src/
+├── common/                  # Infraestrutura transversal e compartilhada
+│   ├── config/              # Leitura centralizada de variáveis e secrets (env.ts)
+│   ├── decorators/          # @CurrentUser(), @Roles(), @Public()
+│   ├── filters/             # HttpExceptionFilter (Padronização RFC 7807 problem+json)
+│   ├── guards/              # AuthGuard, RolesGuard (RBAC)
+│   ├── middleware/          # LoggerMiddleware (logs de requisição e latência)
+│   ├── prisma/              # PrismaService e PrismaModule (@Global)
+│   ├── security/            # PasswordService, SecurityModule, tokens.ts (@Global)
+│   └── mail/                # MailService e MailModule (@Global)
+├── modules/
+│   ├── auth/                # Módulo de Autenticação, Usuários e Recuperação de Senha
+│   ├── lms/                 # Módulo de Cursos, Aulas, Progresso e Certificados
+│   └── files/               # Módulo de Uploads e Streaming de Arquivos
+├── app.controller.ts        # Healthcheck (GET /health) e rota raiz
+├── app.module.ts            # Módulo principal da aplicação
+├── setup-app.ts             # Configuração compartilhada de pipes, filters e cookies
+└── main.ts                  # Bootstrap da aplicação
 ```
 
-## Compile and run the project
+---
+
+## 🚦 Como Rodar a Aplicação
+
+### 1. Ambiente Completo com Docker (Recomendado)
+
+Sobe todos os containers integrados (PostgreSQL 18, Backend NestJS em Multi-Stage Build e Caddy):
 
 ```bash
-# development
-$ npm run start
+# Iniciar todos os serviços
+docker compose up --build -d
 
-# watch mode
-$ npm run start:dev
+# Visualizar logs em tempo real
+docker compose logs -f
 
-# production mode
-$ npm run start:prod
+# Parar serviços
+docker compose down
 ```
 
-## Run tests
+* **Frontend / Aplicação:** `http://localhost`
+* **Healthcheck da API:** `http://localhost/api/health` ou `http://localhost:3000/health`
+* **Banco PostgreSQL:** `localhost:5432`
+
+---
+
+### 2. Ambiente de Desenvolvimento Local (Hot-Reload)
 
 ```bash
-# unit tests
-$ npm run test
+# 1. Subir apenas o banco de dados
+docker compose up -d postgres
 
-# e2e tests
-$ npm run test:e2e
+# 2. Sincronizar o schema e popular dados iniciais (Seed)
+npx prisma db push
+npm run prisma:seed
 
-# test coverage
-$ npm run test:cov
+# 3. Iniciar o servidor de desenvolvimento
+npm run start:dev
 ```
 
-## Deployment
+---
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+### 3. Visualizar Banco com Prisma Studio
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+npx prisma studio
 ```
+Acesse em: `http://localhost:5555`
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+---
 
-## Observability
-
-In production applications, observability is essential for understanding how your system behaves, detecting issues early, and maintaining reliable performance.
-
-[NestJS Observe](https://observe.nestjs.com) automatically instruments your NestJS application, giving you deep visibility into your system with minimal setup:
-
-- **Distributed tracing:** Follow requests across services and understand how they flow through your system.
-- **Waterfall analysis:** Visualize request execution and identify slow operations, bottlenecks, and unexpected delays.
-- **Performance analysis:** Analyze application performance in real time and quickly pinpoint areas that need optimization.
-- **Metrics:** Track key application and infrastructure metrics to understand system health and performance trends.
-- **Logging:** Centralize and correlate logs with traces and other telemetry to make debugging easier.
-- **Error tracking:** Detect errors quickly and investigate their root causes with the surrounding context.
-- **SLA monitoring:** Track service-level objectives and identify when your application is approaching or exceeding defined thresholds.
-- **Alarms and alerts:** Set up alerts for critical errors, performance degradation, SLA violations, and other anomalies so your team can react quickly.
-
-To add it to this project:
+## 🧪 Testes & Validação
 
 ```bash
-$ npm install @nestjs/observe
+# Testes Unitários
+npm test
+
+# Testes de Integração Ponta a Ponta (E2E)
+npm run test:e2e
+
+# Validar Build de Produção
+npm run build
+
+# Linter
+npm run lint
 ```
 
-Then follow the [setup guide](https://docs.nestjs.com/observability/overview) - it takes a single import and an app key.
+---
 
-The free plan needs no payment details and covers 300,000 events a month. You can also browse the [live demo](https://www.observe-demo.nestjs.com/dashboard) first - the whole dashboard over a busy service's data, with nothing to install.
+## 📡 Principais Endpoints da API
 
-## Resources
+### Autenticação (`/auth`)
+- `POST /auth/register` — Cadastro de novos alunos
+- `POST /auth/login` — Login com emissão de cookie de sessão `__Secure-sid`
+- `DELETE /auth/logout` — Encerramento e invalidação de sessão
+- `GET /auth/session` — Dados da sessão do usuário autenticado
+- `PUT /auth/password` — Alteração de senha logado
+- `POST /auth/password/forgot` — Solicitação de link de recuperação
+- `POST /auth/password/reset` — Redefinição de senha com token
+- `GET /auth/users` — Listagem paginada de usuários (Admin, header `X-Total-Count`)
 
-Check out a few resources that may come in handy when working with NestJS:
+### LMS & Cursos (`/lms`)
+- `GET /lms/courses` — Catálogo público de cursos
+- `GET /lms/courses/:slug` — Detalhes do curso com lista de aulas e progresso do aluno
+- `POST /lms/courses` — Criar ou atualizar curso (Admin)
+- `GET /lms/lessons/:courseSlug/:slug` — Detalhes da aula e navegação (`prev`/`next`)
+- `POST /lms/lessons` — Criar ou atualizar aula (Admin)
+- `GET /lms/admin/lessons` — Listagem de todas as aulas cadastradas (Admin)
+- `POST /lms/lessons/complete` — Conclusão de aula e emissão automática de certificado
+- `POST /lms/courses/reset` — Reset de progresso do aluno no curso
+- `GET /lms/certificates` — Certificados emitidos para o aluno
+- `GET /lms/certificates/:id/pdf` — Download do PDF do certificado
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Auto-instrument your application with [NestJS Observe](https://observe.nestjs.com). Distributed tracing, metrics, and logging made easy. Error tracking and performance monitoring for your NestJS applications.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+### Arquivos (`/files`)
+- `GET /files/public/:name` — Download de arquivo público com cache HTTP e ETag (`304 Not Modified`)
+- `GET /files/private/:name` — Acesso seguro a arquivo privado via header `X-Accel-Redirect`
+- `POST /files/upload` — Upload por streaming binário `application/octet-stream` (Admin, até 150MB)
 
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+### Sistema
+- `GET /health` — Verificação de saúde da aplicação
