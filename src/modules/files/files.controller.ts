@@ -7,17 +7,21 @@ import {
   Res,
   HttpException,
   HttpStatus,
+  UseGuards,
 } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { FilesService } from './files.service.js';
 import { FileParamDto } from './dto/file-param.dto.js';
 import { Public } from '../../common/decorators/public.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
+import { AuthGuard } from '../../common/guards/auth.guard.js';
+import { RolesGuard } from '../../common/guards/roles.guard.js';
 
 const MAX_BYTES = 150 * 1024 * 1024; // 150MB
 const FILENAME_REGEX = /^(?!\.)[A-Za-z0-9._-]+$/;
 
 @Controller('files')
+@UseGuards(AuthGuard, RolesGuard)
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 

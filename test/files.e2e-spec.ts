@@ -53,8 +53,8 @@ describe('Suíte de Testes: Arquivos e Healthcheck (/files e /health)', () => {
         name: testUser.name,
         username: testUser.username,
         email: testUser.email,
-        password: hashedPassword,
-        role: 'user',
+        passwordHash: hashedPassword,
+        role: 'USER',
       },
     });
 

@@ -21,6 +21,7 @@ export const mimeType: Record<string, string> = {
   '.svg': 'image/svg+xml',
   '.pdf': 'application/pdf',
   '.zip': 'application/zip',
+  '.txt': 'text/plain',
 };
 
 export function checkETag(match: string | undefined, etag: string): boolean {
