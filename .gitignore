@@ -57,5 +57,16 @@ pids
 *.seed
 *.pid.lock
 
+# Files and Storage
+/files/
+/seed/files/private/*
+!/seed/files/private/.gitkeep
+/seed/files/public/*
+!/seed/files/public/.gitkeep
+
+# Secrets
+secrets/*.txt
+!secrets/.gitkeep
+
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
