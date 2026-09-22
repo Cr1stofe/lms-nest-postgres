@@ -60,7 +60,7 @@ describe('Suíte de Testes: Arquivos e Healthcheck (/files e /health)', () => {
 
     // Login do Admin
     const adminLoginRes = await request(app.getHttpServer())
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send(adminUser);
 
     if (adminLoginRes.status === 200) {
@@ -70,7 +70,7 @@ describe('Suíte de Testes: Arquivos e Healthcheck (/files e /health)', () => {
 
     // Login do Usuário comum
     const userLoginRes = await request(app.getHttpServer())
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({ email: testUser.email, password: testUser.password });
 
     if (userLoginRes.status === 200) {
@@ -87,7 +87,7 @@ describe('Suíte de Testes: Arquivos e Healthcheck (/files e /health)', () => {
   });
 
   it('1. Deve responder o healthcheck da API com status 200', async () => {
-    const res = await request(app.getHttpServer()).get('/health');
+    const res = await request(app.getHttpServer()).get('/api/health');
 
     expect(res.status).toBe(200);
     expect(res.body.status).toBe('ok');
@@ -102,7 +102,7 @@ describe('Suíte de Testes: Arquivos e Healthcheck (/files e /health)', () => {
 
   it('3. Deve proteger arquivo privado contra acesso anônimo (401)', async () => {
     const res = await request(app.getHttpServer()).get(
-      '/files/private/documento-secreto.pdf',
+      '/api/files/private/documento-secreto.pdf',
     );
 
     expect(res.status).toBe(401);
@@ -111,7 +111,7 @@ describe('Suíte de Testes: Arquivos e Healthcheck (/files e /health)', () => {
 
   it('4. Deve permitir acesso ao arquivo privado para usuário autenticado (200 com X-Accel-Redirect)', async () => {
     const res = await request(app.getHttpServer())
-      .get('/files/private/documento-secreto.pdf')
+      .get('/api/files/private/documento-secreto.pdf')
       .set('Cookie', userCookie);
 
     expect(res.status).toBe(200);
@@ -120,7 +120,7 @@ describe('Suíte de Testes: Arquivos e Healthcheck (/files e /health)', () => {
 
   it('5. Deve rejeitar upload sem cabeçalho application/octet-stream (415)', async () => {
     const res = await request(app.getHttpServer())
-      .post('/files/upload')
+      .post('/api/files/upload')
       .set('Cookie', adminCookie)
       .send({ data: 'invalido' });
 
@@ -131,7 +131,7 @@ describe('Suíte de Testes: Arquivos e Healthcheck (/files e /health)', () => {
   it('6. Deve rejeitar upload feito por usuário sem permissão de Admin (403)', async () => {
     const payload = Buffer.from('conteudo teste');
     const res = await request(app.getHttpServer())
-      .post('/files/upload')
+      .post('/api/files/upload')
       .set('Cookie', userCookie)
       .set('Content-Type', 'application/octet-stream')
       .set('Content-Length', payload.length.toString())
@@ -144,7 +144,7 @@ describe('Suíte de Testes: Arquivos e Healthcheck (/files e /health)', () => {
 
   it('7. Deve rejeitar arquivo público inexistente com 404', async () => {
     const res = await request(app.getHttpServer()).get(
-      '/files/public/nao-existe.png',
+      '/api/files/public/nao-existe.png',
     );
 
     expect(res.status).toBe(404);
@@ -154,7 +154,7 @@ describe('Suíte de Testes: Arquivos e Healthcheck (/files e /health)', () => {
   it('8. Deve permitir que o Admin faça upload de arquivo público via octet-stream (201)', async () => {
     const payload = Buffer.from('teste de upload stream publico');
     const res = await request(app.getHttpServer())
-      .post('/files/upload')
+      .post('/api/files/upload')
       .set('Cookie', adminCookie)
       .set('Content-Type', 'application/octet-stream')
       .set('Content-Length', payload.length.toString())
@@ -171,7 +171,7 @@ describe('Suíte de Testes: Arquivos e Healthcheck (/files e /health)', () => {
 
   it('9. Deve servir o arquivo público enviado com status 200 e cabeçalhos de cache', async () => {
     const res = await request(app.getHttpServer()).get(
-      `/files/public/${uploadedPublicFileName}`,
+      `/api/files/public/${uploadedPublicFileName}`,
     );
 
     expect(res.status).toBe(200);
@@ -186,7 +186,7 @@ describe('Suíte de Testes: Arquivos e Healthcheck (/files e /health)', () => {
 
   it('10. Deve responder com status 304 Not Modified se If-None-Match coincidir com ETag', async () => {
     const res = await request(app.getHttpServer())
-      .get(`/files/public/${uploadedPublicFileName}`)
+      .get(`/api/files/public/${uploadedPublicFileName}`)
       .set('If-None-Match', uploadedPublicETag);
 
     expect(res.status).toBe(304);

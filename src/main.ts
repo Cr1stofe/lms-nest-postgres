@@ -6,7 +6,7 @@ import { PORT } from './common/config/env.js';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   setupApp(app);
-  await app.listen(PORT);
+  await app.listen(PORT, '0.0.0.0');
   console.log(`🚀 LMS NestJS Backend rodando na porta ${PORT}`);
 }
 await bootstrap();

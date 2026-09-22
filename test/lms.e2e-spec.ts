@@ -53,7 +53,7 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
     }
 
     const adminLoginRes = await request(app.getHttpServer())
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send(adminUser);
 
     const rawAdminCookie = adminLoginRes.headers['set-cookie'];
@@ -62,10 +62,10 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
       : rawAdminCookie!;
 
     await prisma.user.deleteMany({ where: { email: studentUser.email } });
-    await request(app.getHttpServer()).post('/auth/user').send(studentUser);
+    await request(app.getHttpServer()).post('/api/auth/user').send(studentUser);
 
     const loginRes = await request(app.getHttpServer())
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({
         email: studentUser.email,
         password: studentUser.password,
@@ -83,7 +83,7 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
   });
 
   it('1. Deve listar todos os cursos disponíveis (200)', async () => {
-    const res = await request(app.getHttpServer()).get('/lms/courses');
+    const res = await request(app.getHttpServer()).get('/api/lms/courses');
 
     expect(res.status).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
@@ -94,7 +94,7 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
 
   it('2. Deve obter os detalhes de um curso específico pelo slug (200)', async () => {
     const res = await request(app.getHttpServer()).get(
-      `/lms/course/${testCourseSlug}`,
+      `/api/lms/course/${testCourseSlug}`,
     );
 
     expect(res.status).toBe(200);
@@ -106,7 +106,7 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
 
   it('3. Deve retornar 404 para curso inexistente', async () => {
     const res = await request(app.getHttpServer()).get(
-      '/lms/course/slug-que-nao-existe',
+      '/api/lms/course/slug-que-nao-existe',
     );
 
     expect(res.status).toBe(404);
@@ -115,7 +115,7 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
 
   it('4. Deve obter uma aula com navegação e status (200)', async () => {
     const res = await request(app.getHttpServer()).get(
-      `/lms/lesson/${testCourseSlug}/${testLessonSlug}`,
+      `/api/lms/lesson/${testCourseSlug}/${testLessonSlug}`,
     );
 
     expect(res.status).toBe(200);
@@ -126,7 +126,7 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
 
   it('5. Deve permitir que o Admin crie/atualize um curso (201)', async () => {
     const res = await request(app.getHttpServer())
-      .post('/lms/course')
+      .post('/api/lms/course')
       .set('Cookie', adminCookie)
       .send({
         slug: 'curso-teste-admin',
@@ -142,7 +142,7 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
 
   it('6. Deve permitir que o Admin crie uma aula no novo curso (201)', async () => {
     const res = await request(app.getHttpServer())
-      .post('/lms/lesson')
+      .post('/api/lms/lesson')
       .set('Cookie', adminCookie)
       .send({
         courseSlug: 'curso-teste-admin',
@@ -161,7 +161,7 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
 
   it('7. Deve listar todas as aulas do sistema no painel do Admin (200)', async () => {
     const res = await request(app.getHttpServer())
-      .get('/lms/lessons')
+      .get('/api/lms/lessons')
       .set('Cookie', adminCookie);
 
     expect(res.status).toBe(200);
@@ -176,7 +176,7 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
     });
 
     const res = await request(app.getHttpServer())
-      .post('/lms/lesson/complete')
+      .post('/api/lms/lesson/complete')
       .set('Cookie', studentCookie)
       .send({
         courseId: newCourse!.id,
@@ -192,7 +192,7 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
 
   it('9. Deve listar os certificados do aluno autenticado (200)', async () => {
     const res = await request(app.getHttpServer())
-      .get('/lms/certificates')
+      .get('/api/lms/certificates')
       .set('Cookie', studentCookie);
 
     expect(res.status).toBe(200);
@@ -204,7 +204,7 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
 
   it('10. Deve fazer o download do PDF do certificado emitido (200)', async () => {
     const res = await request(app.getHttpServer()).get(
-      `/lms/certificate/${createdCertificateId}`,
+      `/api/lms/certificate/${createdCertificateId}`,
     );
 
     expect(res.status).toBe(200);
@@ -214,7 +214,7 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
 
   it('11. Deve resetar o progresso do aluno no curso (200)', async () => {
     const res = await request(app.getHttpServer())
-      .delete('/lms/course/reset')
+      .delete('/api/lms/course/reset')
       .set('Cookie', studentCookie)
       .send({
         courseId: testCourseId,
