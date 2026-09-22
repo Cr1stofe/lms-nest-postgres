@@ -109,7 +109,7 @@ export class LmsService {
       slug: l.slug,
       title: l.title,
       seconds: l.seconds,
-      video: l.video,
+      video: l.free || !!userId ? l.video : null,
       description: l.description,
       order: l.order,
       free: l.free ? 1 : 0,
@@ -258,13 +258,15 @@ export class LmsService {
       }
     }
 
+    const hasAccess = currentLesson.free || !!userId;
+
     return {
       id: currentLesson.id,
       course_id: currentLesson.courseId,
       slug: currentLesson.slug,
       title: currentLesson.title,
       seconds: currentLesson.seconds,
-      video: currentLesson.video,
+      video: hasAccess ? currentLesson.video : null,
       description: currentLesson.description,
       order: currentLesson.order,
       free: currentLesson.free ? 1 : 0,

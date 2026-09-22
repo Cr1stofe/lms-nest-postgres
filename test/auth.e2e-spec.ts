@@ -47,7 +47,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
 
     // Login do admin para testes de permissão
     const adminLoginRes = await request(app.getHttpServer())
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send(adminUser);
 
     if (adminLoginRes.status === 200) {
@@ -65,7 +65,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
 
   it('1. Deve registrar um novo usuário com sucesso (201)', async () => {
     const res = await request(app.getHttpServer())
-      .post('/auth/user')
+      .post('/api/auth/user')
       .send(testUser);
 
     expect(res.status).toBe(201);
@@ -74,7 +74,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
 
   it('2. Deve rejeitar cadastro com erro de validação (422)', async () => {
     const res = await request(app.getHttpServer())
-      .post('/auth/user')
+      .post('/api/auth/user')
       .send({
         name: 'I',
         username: 'i',
@@ -91,7 +91,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
 
   it('3. Deve rejeitar cadastro com e-mail já existente (409)', async () => {
     const res = await request(app.getHttpServer())
-      .post('/auth/user')
+      .post('/api/auth/user')
       .send(testUser);
 
     expect(res.status).toBe(409);
@@ -100,7 +100,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
 
   it('4. Deve rejeitar login com credenciais incorretas (404)', async () => {
     const res = await request(app.getHttpServer())
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({
         email: testUser.email,
         password: 'SenhaErrada123',
@@ -112,7 +112,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
 
   it('5. Deve realizar login com sucesso e retornar cookie de sessão (200)', async () => {
     const res = await request(app.getHttpServer())
-      .post('/auth/login')
+      .post('/api/auth/login')
       .send({
         email: testUser.email,
         password: testUser.password,
@@ -128,7 +128,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
   });
 
   it('6. Deve bloquear acesso à rota protegida sem cookie (401)', async () => {
-    const res = await request(app.getHttpServer()).get('/auth/session');
+    const res = await request(app.getHttpServer()).get('/api/auth/session');
 
     expect(res.status).toBe(401);
     expect(res.body.title).toBe('não autorizado');
@@ -136,7 +136,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
 
   it('7. Deve permitir acesso à rota protegida com cookie de sessão válido (200)', async () => {
     const res = await request(app.getHttpServer())
-      .get('/auth/session')
+      .get('/api/auth/session')
       .set('Cookie', userCookie);
 
     expect(res.status).toBe(200);
@@ -146,7 +146,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
 
   it('8. Deve bloquear usuário comum de acessar rota restrita de Admin (403)', async () => {
     const res = await request(app.getHttpServer())
-      .get('/auth/users/search')
+      .get('/api/auth/users/search')
       .set('Cookie', userCookie);
 
     expect(res.status).toBe(403);
@@ -155,7 +155,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
 
   it('9. Deve permitir que Admin acesse a busca paginada de usuários (200)', async () => {
     const res = await request(app.getHttpServer())
-      .get('/auth/users/search?page=1')
+      .get('/api/auth/users/search?page=1')
       .set('Cookie', adminCookie);
 
     expect(res.status).toBe(200);
@@ -165,7 +165,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
 
   it('10. Deve atualizar a senha do usuário autenticado (200)', async () => {
     const res = await request(app.getHttpServer())
-      .put('/auth/password/update')
+      .put('/api/auth/password/update')
       .set('Cookie', userCookie)
       .send({
         password: testUser.password,
@@ -181,7 +181,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
 
   it('11. Deve solicitar recuperação de senha e redefinir com token', async () => {
     const forgotRes = await request(app.getHttpServer())
-      .post('/auth/password/forgot')
+      .post('/api/auth/password/forgot')
       .send({ email: testUser.email });
 
     expect(forgotRes.status).toBe(200);
@@ -199,7 +199,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
     expect(resetRecord).toBeDefined();
 
     const invalidTokenRes = await request(app.getHttpServer())
-      .post('/auth/password/reset')
+      .post('/api/auth/password/reset')
       .send({
         token: 'token-invalido-12345678901234567890',
         new_password: 'OutraP@ssw0rd123',
@@ -211,7 +211,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
 
   it('12. Deve realizar logout e invalidar o cookie de sessão (204)', async () => {
     const res = await request(app.getHttpServer())
-      .delete('/auth/logout')
+      .delete('/api/auth/logout')
       .set('Cookie', userCookie);
 
     expect(res.status).toBe(204);

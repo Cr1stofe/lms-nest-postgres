@@ -8,6 +8,11 @@ import cookieParser from 'cookie-parser';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
 
 export function setupApp(app: INestApplication) {
+  app.setGlobalPrefix('api');
+  app.enableCors({
+    origin: true,
+    credentials: true,
+  });
   app.use(cookieParser());
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(

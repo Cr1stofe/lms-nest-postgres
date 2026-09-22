@@ -60,9 +60,8 @@ docker compose logs -f
 docker compose down
 ```
 
-* **Frontend / Aplicação:** `http://localhost`
-* **Healthcheck da API:** `http://localhost/api/health` ou `http://localhost:3000/health`
-* **Banco PostgreSQL:** `localhost:5432`
+- **Healthcheck da API:** `http://localhost/api/health` ou `http://localhost:3000/health`
+- **Banco PostgreSQL:** `localhost:5432`
 
 ---
 
@@ -87,6 +86,7 @@ npm run start:dev
 ```bash
 npx prisma studio
 ```
+
 Acesse em: `http://localhost:5555`
 
 ---
@@ -111,32 +111,32 @@ npm run lint
 
 ## 📡 Principais Endpoints da API
 
-### Autenticação (`/auth`)
-- `POST /auth/register` — Cadastro de novos alunos
-- `POST /auth/login` — Login com emissão de cookie de sessão `__Secure-sid`
-- `DELETE /auth/logout` — Encerramento e invalidação de sessão
-- `GET /auth/session` — Dados da sessão do usuário autenticado
-- `PUT /auth/password` — Alteração de senha logado
-- `POST /auth/password/forgot` — Solicitação de link de recuperação
-- `POST /auth/password/reset` — Redefinição de senha com token
-- `GET /auth/users` — Listagem paginada de usuários (Admin, header `X-Total-Count`)
+### Autenticação (`/api/auth`)
+- `POST /api/auth/register` — Cadastro de novos alunos
+- `POST /api/auth/login` — Login com emissão de cookie de sessão `__Secure-sid`
+- `DELETE /api/auth/logout` — Encerramento e invalidação de sessão
+- `GET /api/auth/session` — Dados da sessão do usuário autenticado
+- `PUT /api/auth/password/update` — Alteração de senha logado
+- `POST /api/auth/password/forgot` — Solicitação de link de recuperação
+- `POST /api/auth/password/reset` — Redefinição de senha com token
+- `GET /api/auth/users/search` — Listagem paginada de usuários (Admin, header `X-Total-Count`)
 
-### LMS & Cursos (`/lms`)
-- `GET /lms/courses` — Catálogo público de cursos
-- `GET /lms/courses/:slug` — Detalhes do curso com lista de aulas e progresso do aluno
-- `POST /lms/courses` — Criar ou atualizar curso (Admin)
-- `GET /lms/lessons/:courseSlug/:slug` — Detalhes da aula e navegação (`prev`/`next`)
-- `POST /lms/lessons` — Criar ou atualizar aula (Admin)
-- `GET /lms/admin/lessons` — Listagem de todas as aulas cadastradas (Admin)
-- `POST /lms/lessons/complete` — Conclusão de aula e emissão automática de certificado
-- `POST /lms/courses/reset` — Reset de progresso do aluno no curso
-- `GET /lms/certificates` — Certificados emitidos para o aluno
-- `GET /lms/certificates/:id/pdf` — Download do PDF do certificado
+### LMS & Cursos (`/api/lms`)
+- `GET /api/lms/courses` — Catálogo público de cursos
+- `GET /api/lms/course/:slug` — Detalhes do curso com lista de aulas e progresso do aluno
+- `POST /api/lms/course` — Criar ou atualizar curso (Admin)
+- `GET /api/lms/lesson/:courseSlug/:slug` — Detalhes da aula e navegação (`prev`/`next`)
+- `POST /api/lms/lesson` — Criar ou atualizar aula (Admin)
+- `GET /api/lms/lessons` — Listagem de todas as aulas cadastradas (Admin)
+- `POST /api/lms/lesson/complete` — Conclusão de aula e emissão automática de certificado
+- `DELETE /api/lms/course/reset` — Reset de progresso do aluno no curso
+- `GET /api/lms/certificates` — Certificados emitidos para o aluno
+- `GET /api/lms/certificate/:id` — Download do PDF do certificado
 
-### Arquivos (`/files`)
-- `GET /files/public/:name` — Download de arquivo público com cache HTTP e ETag (`304 Not Modified`)
-- `GET /files/private/:name` — Acesso seguro a arquivo privado via header `X-Accel-Redirect`
-- `POST /files/upload` — Upload por streaming binário `application/octet-stream` (Admin, até 150MB)
+### Arquivos & Streaming (`/api/files` e `/files`)
+- `GET /api/files/public/:name` ou `GET /files/public/:name` — Download com cache HTTP e ETag (`304 Not Modified`)
+- `GET /api/files/private/:name` ou `GET /files/private/:name` — Acesso seguro a arquivo privado via header `X-Accel-Redirect`
+- `POST /api/files/upload` — Upload por streaming binário `application/octet-stream` (Admin, até 150MB)
 
 ### Sistema
-- `GET /health` — Verificação de saúde da aplicação
+- `GET /api/health` — Verificação de saúde da aplicação
