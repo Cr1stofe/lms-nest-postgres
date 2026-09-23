@@ -2,7 +2,6 @@
 	email {$ACME_EMAIL}
 }
 {$SERVER_NAME} {
-	tls internal
 	encode zstd gzip
 
 	header {
