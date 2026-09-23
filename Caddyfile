@@ -1,12 +1,10 @@
 {
 	email {$ACME_EMAIL}
 }
-{$SERVER_NAME} {
+http://{$SERVER_NAME}, {$SERVER_NAME} {
 	encode zstd gzip
 
 	header {
-		# Força HTTPS por 180 dias e inclui subdomínios.
-		Strict-Transport-Security "max-age=15552000; includeSubDomains"
 		# no-referrer: nunca envia o Referer.
 		Referrer-Policy "no-referrer"
 		# Respeita Content-Type.
