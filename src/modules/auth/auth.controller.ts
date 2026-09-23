@@ -67,10 +67,7 @@ export class AuthController {
   @Public()
   @Delete('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async logout(
-    @Req() req: Request,
-    @Res({ passthrough: true }) res: Response,
-  ) {
+  async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const sid = req.cookies?.[COOKIE_SID_KEY] || req.cookies?.['sid'];
     await this.sessionService.invalidate(sid);
     clearSessionCookie(res);
@@ -83,6 +80,9 @@ export class AuthController {
     return {
       title: 'valida',
       role: session.role,
+      name: session.name,
+      username: session.username,
+      email: session.email,
     };
   }
 
@@ -111,10 +111,7 @@ export class AuthController {
   @Public()
   @Post('password/forgot')
   @HttpCode(HttpStatus.OK)
-  async forgotPassword(
-    @Body() dto: ForgotPasswordDto,
-    @Req() req: Request,
-  ) {
+  async forgotPassword(@Body() dto: ForgotPasswordDto, @Req() req: Request) {
     const ip = req.ip || req.socket?.remoteAddress || '';
     const ua = (req.headers['user-agent'] as string) || '';
     const baseUrl = `${req.protocol}://${req.get('host')}`;

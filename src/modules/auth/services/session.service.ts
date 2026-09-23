@@ -13,11 +13,18 @@ export type UserRole = 'admin' | 'editor' | 'user';
 
 export interface SessionData {
   user_id: number;
+  name: string;
+  username: string;
+  email: string;
   role: UserRole;
   expires_ms: number;
 }
 
-export function setSessionCookie(res: Response, sid: string, maxAgeSec: number) {
+export function setSessionCookie(
+  res: Response,
+  sid: string,
+  maxAgeSec: number,
+) {
   res.cookie(COOKIE_SID_KEY, sid, {
     maxAge: maxAgeSec * 1000,
     httpOnly: true,
@@ -77,9 +84,19 @@ export class SessionService {
 
     const session = await this.prisma.session.findUnique({
       where: { sidHash },
+      include: {
+        user: {
+          select: {
+            email: true,
+            name: true,
+            username: true,
+            role: true,
+          },
+        },
+      },
     });
 
-    if (!session || session.revoked) {
+    if (!session || session.revoked || !session.user) {
       return { valid: false };
     }
 
@@ -94,7 +111,10 @@ export class SessionService {
     }
 
     // Se faltar menos de 5 dias para expirar, estende por mais 15 dias
-    if (now.getTime() >= expiresDate.getTime() - SESSION_REFRESH_THRESHOLD_SEC * 1000) {
+    if (
+      now.getTime() >=
+      expiresDate.getTime() - SESSION_REFRESH_THRESHOLD_SEC * 1000
+    ) {
       const newExpires = new Date(Date.now() + SESSION_TTL_SEC * 1000);
       await this.prisma.session.update({
         where: { sidHash },
@@ -103,28 +123,16 @@ export class SessionService {
       expiresDate = newExpires;
     }
 
-    const user = await this.prisma.user.findUnique({
-      where: { id: session.userId },
-      select: { role: true },
-    });
-
-    if (!user) {
-      await this.prisma.session.update({
-        where: { sidHash },
-        data: { revoked: true },
-      });
-      return { valid: false };
-    }
-
-    const role = user.role.toLowerCase() as UserRole;
-
     return {
       valid: true,
       sid,
       maxAgeSec: Math.floor((expiresDate.getTime() - now.getTime()) / 1000),
       session: {
         user_id: session.userId,
-        role,
+        name: session.user.name,
+        username: session.user.username,
+        email: session.user.email,
+        role: session.user.role.toLowerCase() as UserRole,
         expires_ms: expiresDate.getTime(),
       },
     };
