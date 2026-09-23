@@ -31,6 +31,22 @@
 		respond 204
 	}
 
+	handle_path /api/files/public/* {
+		root * /files/public
+		file_server
+	}
+
+	handle /api/files/private/* {
+		reverse_proxy node:3000 {
+			@accel header X-Accel-Redirect *
+			handle_response @accel {
+				root * /files/private
+				rewrite * /{rp.header.X-Accel-Redirect}
+				file_server
+			}
+		}
+	}
+
 	handle_path /files/public/* {
 		root * /files/public
 		file_server
@@ -41,7 +57,7 @@
 			@accel header X-Accel-Redirect *
 			handle_response @accel {
 				root * /files/private
-				rewrite * {rp.header.X-Accel-Redirect}
+				rewrite * /{rp.header.X-Accel-Redirect}
 				file_server
 			}
 		}
