@@ -73,14 +73,12 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
   });
 
   it('2. Deve rejeitar cadastro com erro de validação (422)', async () => {
-    const res = await request(app.getHttpServer())
-      .post('/api/auth/user')
-      .send({
-        name: 'I',
-        username: 'i',
-        email: 'email-invalido',
-        password: '123',
-      });
+    const res = await request(app.getHttpServer()).post('/api/auth/user').send({
+      name: 'I',
+      username: 'i',
+      email: 'email-invalido',
+      password: '123',
+    });
 
     expect(res.status).toBe(422);
     expect(res.headers['content-type']).toContain('application/problem+json');
@@ -142,6 +140,9 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
     expect(res.status).toBe(200);
     expect(res.body.title).toBe('valida');
     expect(res.body.role).toBe('user');
+    expect(res.body.name).toBe(testUser.name);
+    expect(res.body.username).toBe(testUser.username);
+    expect(res.body.email).toBe(testUser.email);
   });
 
   it('8. Deve bloquear usuário comum de acessar rota restrita de Admin (403)', async () => {
