@@ -17,6 +17,7 @@ FROM base AS prod
 WORKDIR /app
 ENV NODE_ENV=production
 COPY package*.json ./
+COPY tsconfig*.json ./
 COPY prisma ./prisma/
 COPY prisma7.config.ts ./
 RUN npm ci --omit=dev && npx prisma generate
