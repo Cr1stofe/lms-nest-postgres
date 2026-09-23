@@ -20,6 +20,7 @@ COPY package*.json ./
 COPY prisma ./prisma/
 COPY prisma7.config.ts ./
 RUN npm ci --omit=dev && npx prisma generate
+COPY src ./src/
 COPY --from=builder /app/dist ./dist/
 
 CMD ["node", "dist/main.js"]
