@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  HttpException,
-  HttpStatus,
-} from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../../common/prisma/prisma.service.js';
 import { generateCertificate } from './utils/certificate.generator.js';
 import type { CourseUpsertDto } from './dto/course-upsert.dto.js';
@@ -63,6 +59,14 @@ export class LmsService {
         lessonsList: {
           orderBy: { order: 'asc' },
         },
+        certificates: userId
+          ? {
+              where: {
+                userId,
+              },
+              select: { id: true },
+            }
+          : false,
       },
     });
 
@@ -93,6 +97,8 @@ export class LmsService {
       }));
     }
 
+    const certificateId = course.certificates?.[0]?.id ?? null;
+
     const formattedCourse = {
       id: course.id,
       slug: course.slug,
@@ -120,6 +126,7 @@ export class LmsService {
       course: formattedCourse,
       lessons: formattedLessons,
       completed,
+      certificate: certificateId,
     };
   }
 
@@ -231,11 +238,11 @@ export class LmsService {
 
     const currentLesson = allLessons[lessonIndex];
     const prev =
-      lessonIndex === 0 ? null : allLessons[lessonIndex - 1]?.slug ?? null;
+      lessonIndex === 0 ? null : (allLessons[lessonIndex - 1]?.slug ?? null);
     const nextSlug =
       lessonIndex === allLessons.length - 1
         ? null
-        : allLessons[lessonIndex + 1]?.slug ?? null;
+        : (allLessons[lessonIndex + 1]?.slug ?? null);
 
     let completed = '';
     if (userId) {

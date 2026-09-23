@@ -219,6 +219,12 @@ const usersData = [
     role: Role.EDITOR,
   },
   {
+    name: 'Aluno Padrão',
+    username: 'aluno',
+    email: 'aluno@lms.com',
+    role: Role.USER,
+  },
+  {
     name: 'Henrique Barros',
     username: 'henrique.barros@exemplo.com',
     email: 'henrique.barros@exemplo.com',
@@ -249,7 +255,9 @@ async function main() {
   const defaultPasswordHash = await passService.hash(DEFAULT_PASSWORD);
 
   // 1. Criando ou atualizando Cursos e suas Aulas
-  console.log(`📚 Semeando ${coursesData.length} cursos e suas respectivas aulas...`);
+  console.log(
+    `📚 Semeando ${coursesData.length} cursos e suas respectivas aulas...`,
+  );
   for (const courseItem of coursesData) {
     const { lessons, lessonsCount, ...courseFields } = courseItem;
 
@@ -301,7 +309,9 @@ async function main() {
   }
 
   // 2. Criando Usuários
-  console.log(`👤 Semeando ${usersData.length} usuários (Admin, Editor e Alunos)...`);
+  console.log(
+    `👤 Semeando ${usersData.length} usuários (Admin, Editor e Alunos)...`,
+  );
   for (const userItem of usersData) {
     await prisma.user.upsert({
       where: { email: userItem.email },
