@@ -31,6 +31,7 @@ import { Roles } from '../../common/decorators/roles.decorator.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { AuthGuard } from '../../common/guards/auth.guard.js';
 import { RolesGuard } from '../../common/guards/roles.guard.js';
+import { FRONTEND_URL } from '../../common/config/env.js';
 import type { SessionData } from './services/session.service.js';
 
 @Controller('auth')
@@ -114,7 +115,12 @@ export class AuthController {
   async forgotPassword(@Body() dto: ForgotPasswordDto, @Req() req: Request) {
     const ip = req.ip || req.socket?.remoteAddress || '';
     const ua = (req.headers['user-agent'] as string) || '';
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const origin =
+      (req.headers['origin'] as string) ||
+      (req.headers['referer']
+        ? new URL(req.headers['referer']).origin
+        : undefined);
+    const baseUrl = process.env.FRONTEND_URL || origin || FRONTEND_URL;
 
     return this.authService.forgotPassword(dto.email, ip, ua, baseUrl);
   }
