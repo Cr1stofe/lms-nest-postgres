@@ -66,7 +66,7 @@ export class LmsService {
               },
               select: { id: true },
             }
-          : false,
+          : undefined,
       },
     });
 
