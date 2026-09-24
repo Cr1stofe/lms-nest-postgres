@@ -7,7 +7,8 @@ export const PORT = Number(process.env.PORT) || 3000;
 export const DATABASE_URL =
   process.env.DATABASE_URL ||
   'postgresql://postgres:postgres@localhost:5432/lms?schema=public';
-export const FROM_EMAIL = process.env.FROM_EMAIL || 'noreply@lms.lobo.api.br';
+export const FROM_EMAIL =
+  process.env.FROM_EMAIL || 'Veltro LMS <onboarding@resend.dev>';
 export const SERVER_NAME = process.env.SERVER_NAME || 'localhost';
 
 export const FILES_PATH =
