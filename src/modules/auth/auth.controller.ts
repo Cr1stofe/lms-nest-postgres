@@ -114,7 +114,12 @@ export class AuthController {
   async forgotPassword(@Body() dto: ForgotPasswordDto, @Req() req: Request) {
     const ip = req.ip || req.socket?.remoteAddress || '';
     const ua = (req.headers['user-agent'] as string) || '';
-    const baseUrl = `${req.protocol}://${req.get('host')}`;
+    const origin =
+      (req.headers['origin'] as string) ||
+      (req.headers['referer']
+        ? new URL(req.headers['referer']).origin
+        : undefined);
+    const baseUrl = process.env.FRONTEND_URL || origin || 'https://veltro.cr1stofe.dev';
 
     return this.authService.forgotPassword(dto.email, ip, ua, baseUrl);
   }

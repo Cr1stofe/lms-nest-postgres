@@ -157,7 +157,8 @@ export class AuthService {
       ua,
     });
 
-    const resetLink = `${baseUrl}/#/resetar/?token=${token}`;
+    const cleanBaseUrl = baseUrl.replace(/\/$/, '');
+    const resetLink = `${cleanBaseUrl}/resetar-senha?token=${token}`;
 
     const mailContent = {
       to: user.email,

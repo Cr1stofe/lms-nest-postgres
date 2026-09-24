@@ -10,6 +10,8 @@ export const DATABASE_URL =
 export const FROM_EMAIL =
   process.env.FROM_EMAIL || 'Veltro LMS <onboarding@resend.dev>';
 export const SERVER_NAME = process.env.SERVER_NAME || 'localhost';
+export const FRONTEND_URL =
+  process.env.FRONTEND_URL || 'https://veltro.cr1stofe.dev';
 
 export const FILES_PATH =
   process.env.FILES_PATH && existsSync(process.env.FILES_PATH)
