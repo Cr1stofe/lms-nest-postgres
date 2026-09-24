@@ -31,6 +31,7 @@ import { Roles } from '../../common/decorators/roles.decorator.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
 import { AuthGuard } from '../../common/guards/auth.guard.js';
 import { RolesGuard } from '../../common/guards/roles.guard.js';
+import { FRONTEND_URL } from '../../common/config/env.js';
 import type { SessionData } from './services/session.service.js';
 
 @Controller('auth')
@@ -119,7 +120,7 @@ export class AuthController {
       (req.headers['referer']
         ? new URL(req.headers['referer']).origin
         : undefined);
-    const baseUrl = process.env.FRONTEND_URL || origin || 'https://veltro.cr1stofe.dev';
+    const baseUrl = process.env.FRONTEND_URL || origin || FRONTEND_URL;
 
     return this.authService.forgotPassword(dto.email, ip, ua, baseUrl);
   }
