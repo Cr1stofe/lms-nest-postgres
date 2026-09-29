@@ -27,11 +27,6 @@ export class CourseUpsertDto {
   description: string;
 
   @Type(() => Number)
-  @IsInt({ message: 'quantidade de aulas deve ser um número inteiro' })
-  @Min(0, { message: 'quantidade de aulas não pode ser negativa' })
-  lessons: number;
-
-  @Type(() => Number)
   @IsInt({ message: 'carga horária deve ser um número inteiro' })
   @Min(0, { message: 'carga horária não pode ser negativa' })
   hours: number;

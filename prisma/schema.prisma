@@ -69,7 +69,6 @@ model Course {
   slug        String   @unique
   title       String
   description String
-  lessons     Int      @default(0)
   hours       Int      @default(0)
   created     DateTime @default(now())
 

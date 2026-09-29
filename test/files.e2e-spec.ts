@@ -16,9 +16,9 @@ describe('Suíte de Testes: Arquivos e Healthcheck (/files e /health)', () => {
   let userCookie: string;
 
   const testUser = {
-    name: 'Henrique Barros',
-    username: 'henriquebarros',
-    email: 'henrique.barros@exemplo.com',
+    name: 'Aluno Files Vitest',
+    username: 'alunofilesvitest',
+    email: 'alunofilesvitest@exemplo.com',
     password: 'P@ssw0rd123',
   };
 
