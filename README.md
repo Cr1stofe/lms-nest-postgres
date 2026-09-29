@@ -15,6 +15,7 @@ Backend corporativo para plataforma LMS (Learning Management System), desenvolvi
 - **Armazenamento & Streaming:** Uploads binários via `application/octet-stream`, entrega com cache `ETag` (304 Not Modified) e `X-Accel-Redirect`
 - **Proxy Reverso:** [Caddy 2](https://caddyserver.com/) com terminação TLS automática
 - **Testes & Qualidade:** [Vitest](https://vitest.dev/) (Unitários e E2E) e [Oxlint](https://oxc.rs/)
+- **CI/CD:** [GitHub Actions](https://github.com/features/actions) (Testes automatizados com PostgreSQL Service Container + Deploy contínuo via SSH na VPS)
 
 ---
 
@@ -45,67 +46,79 @@ src/
 
 ## 🚦 Como Rodar a Aplicação
 
-### 1. Ambiente Completo com Docker (Recomendado)
+### 1. Ambiente de Desenvolvimento com Hot-Reload (Docker Dev)
 
-Sobe todos os containers integrados (PostgreSQL 18, Backend NestJS em Multi-Stage Build e Caddy):
+Utiliza o [compose.dev.yaml](file:///Volumes/D/Projetos/backend/nodejs/lms-nest-postgres/compose.dev.yaml) com *bind mount* de código e NestJS *watch mode*:
 
 ```bash
-# Iniciar todos os serviços
-docker compose up --build -d
+npm run docker:dev
+npm run docker:dev:d
+npm run docker:down
+```
 
-# Visualizar logs em tempo real
+---
+
+### 2. Ambiente de Produção com Docker
+
+Build otimizado sem `devDependencies` com Caddy Server e PostgreSQL:
+
+```bash
+npm run docker:prod
 docker compose logs -f
-
-# Parar serviços
 docker compose down
 ```
 
-- **Healthcheck da API:** `http://localhost/api/health` ou `http://localhost:3000/health`
+- **Healthcheck da API:** `https://localhost/api/health` ou `http://localhost/api/health`
 - **Banco PostgreSQL:** `localhost:5432`
 
 ---
 
-### 2. Ambiente de Desenvolvimento Local (Hot-Reload)
+### 3. Migrations & Banco de Dados (Prisma)
 
 ```bash
-# 1. Subir apenas o banco de dados
-docker compose up -d postgres
-
-# 2. Sincronizar o schema e popular dados iniciais (Seed)
-npx prisma db push
+npx prisma migrate dev --name nome_da_alteracao
+docker compose exec node npx prisma migrate deploy
 npm run prisma:seed
-
-# 3. Iniciar o servidor de desenvolvimento
-npm run start:dev
-```
-
----
-
-### 3. Visualizar Banco com Prisma Studio
-
-```bash
 npx prisma studio
 ```
 
-Acesse em: `http://localhost:5555`
+---
+
+## 🧪 Testes & Qualidade
+
+```bash
+npm test
+npm run test:e2e
+npm run build
+npm run lint
+```
 
 ---
 
-## 🧪 Testes & Validação
+## 🔄 Pipeline de CI/CD (GitHub Actions)
 
-```bash
-# Testes Unitários
-npm test
+A aplicação conta com esteira automatizada em `.github/workflows/`:
 
-# Testes de Integração Ponta a Ponta (E2E)
-npm run test:e2e
+### 1. **CI Pipeline (`.github/workflows/ci.yml`):**
+Disparado a cada `push` e `pull_request`:
+- Sobe um container de serviço **PostgreSQL 18** no runner do GitHub.
+- Aplica migrations do Prisma (`prisma migrate deploy`) e executa o seed de testes.
+- Valida o linter (`oxlint`) e a compilação do TypeScript (`tsc`).
+- Executa a suíte de testes unitários e os **35 testes E2E** de integração.
 
-# Validar Build de Produção
-npm run build
+### 2. **CD Pipeline (`.github/workflows/deploy.yml`):**
+Disparado automaticamente ao realizar merge/push na branch `main`:
+- Conecta na sua **VPS via SSH**.
+- Atualiza o repositório (`git pull origin main`).
+- Reconstrói os containers (`docker compose up --build -d`).
+- Aplica as migrations pendentes no banco de produção (`prisma migrate deploy`).
 
-# Linter
-npm run lint
-```
+#### 🔑 Segredos necessários no GitHub (`Settings > Secrets and variables > Actions`):
+- `SSH_HOST`: IP público ou domínio da sua VPS.
+- `SSH_USER`: Usuário SSH (ex: `ubuntu` ou `root`).
+- `SSH_PRIVATE_KEY`: Chave privada SSH para autenticação (sem senha ou com `SSH_PASSPHRASE`).
+- `WORK_DIR`: Diretório do projeto no servidor (ex: `/home/ubuntu/lms-nest-postgres` ou `/var/www/lms-nest-postgres`).
+- `SSH_PORT`: Porta SSH (padrão: `22`).
 
 ---
 
@@ -122,7 +135,7 @@ npm run lint
 - `GET /api/auth/users/search` — Listagem paginada de usuários (Admin, header `X-Total-Count`)
 
 ### LMS & Cursos (`/api/lms`)
-- `GET /api/lms/courses` — Catálogo público de cursos
+- `GET /api/lms/courses` — Catálogo público de cursos (com contagem dinâmica de aulas)
 - `GET /api/lms/course/:slug` — Detalhes do curso com lista de aulas e progresso do aluno
 - `POST /api/lms/course` — Criar ou atualizar curso (Admin)
 - `GET /api/lms/lesson/:courseSlug/:slug` — Detalhes da aula e navegação (`prev`/`next`)
@@ -131,7 +144,7 @@ npm run lint
 - `POST /api/lms/lesson/complete` — Conclusão de aula e emissão automática de certificado
 - `DELETE /api/lms/course/reset` — Reset de progresso do aluno no curso
 - `GET /api/lms/certificates` — Certificados emitidos para o aluno
-- `GET /api/lms/certificate/:id` — Download do PDF do certificado
+- `GET /api/lms/certificate/:id` — Download do PDF do certificado (Dark Luxury)
 
 ### Arquivos & Streaming (`/api/files` e `/files`)
 - `GET /api/files/public/:name` ou `GET /files/public/:name` — Download com cache HTTP e ETag (`304 Not Modified`)
@@ -140,3 +153,4 @@ npm run lint
 
 ### Sistema
 - `GET /api/health` — Verificação de saúde da aplicação
+

@@ -14,14 +14,12 @@ export class LmsService {
       update: {
         title: data.title,
         description: data.description,
-        lessons: data.lessons,
         hours: data.hours,
       },
       create: {
         slug: data.slug,
         title: data.title,
         description: data.description,
-        lessons: data.lessons,
         hours: data.hours,
       },
     });
@@ -36,6 +34,11 @@ export class LmsService {
   async listCourses() {
     const courses = await this.prisma.course.findMany({
       orderBy: { created: 'asc' },
+      include: {
+        _count: {
+          select: { lessonsList: true },
+        },
+      },
       take: 100,
     });
 
@@ -48,6 +51,7 @@ export class LmsService {
 
     return courses.map((c) => ({
       ...c,
+      lessons: c._count.lessonsList,
       created: c.created.toISOString().replace('T', ' ').substring(0, 19),
     }));
   }
@@ -104,7 +108,7 @@ export class LmsService {
       slug: course.slug,
       title: course.title,
       description: course.description,
-      lessons: course.lessons,
+      lessons: course.lessonsList.length,
       hours: course.hours,
       created: course.created.toISOString().replace('T', ' ').substring(0, 19),
     };
@@ -373,7 +377,13 @@ export class LmsService {
       where: { userId },
       include: {
         user: { select: { name: true } },
-        course: { select: { title: true, hours: true, lessons: true } },
+        course: {
+          select: {
+            title: true,
+            hours: true,
+            _count: { select: { lessonsList: true } },
+          },
+        },
       },
       orderBy: { completed: 'desc' },
     });
@@ -385,7 +395,7 @@ export class LmsService {
       course_id: cert.courseId,
       title: cert.course.title,
       hours: cert.course.hours,
-      lessons: cert.course.lessons,
+      lessons: cert.course._count.lessonsList,
       completed: cert.completed
         .toISOString()
         .replace('T', ' ')
@@ -398,7 +408,13 @@ export class LmsService {
       where: { id },
       include: {
         user: { select: { name: true } },
-        course: { select: { title: true, hours: true, lessons: true } },
+        course: {
+          select: {
+            title: true,
+            hours: true,
+            _count: { select: { lessonsList: true } },
+          },
+        },
       },
     });
 
@@ -414,7 +430,7 @@ export class LmsService {
       name: cert.user.name,
       title: cert.course.title,
       hours: cert.course.hours,
-      lessons: cert.course.lessons,
+      lessons: cert.course._count.lessonsList,
       completed: cert.completed
         .toISOString()
         .replace('T', ' ')

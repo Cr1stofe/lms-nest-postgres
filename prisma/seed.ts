@@ -19,7 +19,6 @@ const coursesData = [
     description:
       'Aprenda os fundamentos da web: marcação semântica, estilização moderna e acessibilidade.',
     hours: 8,
-    lessonsCount: 6,
     lessons: [
       {
         title: 'Tags Básicas',
@@ -89,7 +88,6 @@ const coursesData = [
     description:
       'Domine a linguagem de programação da web: variáveis, funções, DOM e requisições assíncronas.',
     hours: 12,
-    lessonsCount: 6,
     lessons: [
       {
         title: 'Introdução e Variáveis',
@@ -159,7 +157,6 @@ const coursesData = [
     description:
       'Modelagem relacional, índices, relacionamentos, constraints e Prisma ORM.',
     hours: 10,
-    lessonsCount: 4,
     lessons: [
       {
         title: 'Introdução ao PostgreSQL e Docker',
@@ -259,7 +256,7 @@ async function main() {
     `📚 Semeando ${coursesData.length} cursos e suas respectivas aulas...`,
   );
   for (const courseItem of coursesData) {
-    const { lessons, lessonsCount, ...courseFields } = courseItem;
+    const { lessons, ...courseFields } = courseItem;
 
     const course = await prisma.course.upsert({
       where: { slug: courseFields.slug },
@@ -267,14 +264,12 @@ async function main() {
         title: courseFields.title,
         description: courseFields.description,
         hours: courseFields.hours,
-        lessons: lessonsCount,
       },
       create: {
         title: courseFields.title,
         slug: courseFields.slug,
         description: courseFields.description,
         hours: courseFields.hours,
-        lessons: lessonsCount,
       },
     });
 

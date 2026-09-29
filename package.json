@@ -22,7 +22,11 @@
     "test:e2e": "vitest run --config ./vitest.config.e2e.ts",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
-    "prisma:seed": "prisma db seed"
+    "prisma:seed": "prisma db seed",
+    "docker:dev": "docker compose -f compose.yaml -f compose.dev.yaml up --build",
+    "docker:dev:d": "docker compose -f compose.yaml -f compose.dev.yaml up --build -d",
+    "docker:down": "docker compose -f compose.yaml -f compose.dev.yaml down",
+    "docker:prod": "docker compose up --build -d"
   },
   "prisma": {
     "seed": "npx --yes tsx prisma/seed.ts"
