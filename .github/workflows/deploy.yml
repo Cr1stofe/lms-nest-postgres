@@ -1,0 +1,43 @@
+name: CD Deploy to VPS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    name: Deploy to Production VPS
+    runs-on: ubuntu-latest
+    # Executa apenas se o CI tiver passado
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH to VPS
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script: |
+            set -e
+            echo "🚀 Iniciando deploy contínuo na VPS..."
+
+            # Navega até o diretório da aplicação na VPS
+            cd ${{ secrets.WORK_DIR || '~/lms-nest-postgres' }}
+
+            echo "📦 Atualizando repositório..."
+            git pull origin main
+
+            echo "🐳 Reconstruindo containers com Docker Compose..."
+            docker compose up --build -d
+
+            echo "🗄️ Executando migrations do Prisma no PostgreSQL..."
+            docker compose exec -T node npx prisma migrate deploy
+
+            echo "🧹 Limpando imagens órfãs do Docker..."
+            docker image prune -f
+
+            echo "✅ Deploy concluído com sucesso!"
