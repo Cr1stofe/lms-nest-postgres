@@ -8,7 +8,6 @@ jobs:
   deploy:
     name: Deploy to Production VPS
     runs-on: ubuntu-latest
-    # Executa apenas se o CI tiver passado
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,20 +23,10 @@ jobs:
           script: |
             set -e
             echo "🚀 Iniciando deploy contínuo na VPS..."
-
-            # Navega até o diretório da aplicação na VPS
             cd ${{ secrets.WORK_DIR || '~/lms-nest-postgres' }}
-
-            echo "📦 Atualizando repositório..."
             git pull origin main
-
-            echo "🐳 Reconstruindo containers com Docker Compose..."
             docker compose up --build -d
-
-            echo "🗄️ Executando migrations do Prisma no PostgreSQL..."
             docker compose exec -T node npx prisma migrate deploy
-
-            echo "🧹 Limpando imagens órfãs do Docker..."
             docker image prune -f
-
             echo "✅ Deploy concluído com sucesso!"
+

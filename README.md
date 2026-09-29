@@ -51,13 +51,8 @@ src/
 Utiliza o [compose.dev.yaml](file:///Volumes/D/Projetos/backend/nodejs/lms-nest-postgres/compose.dev.yaml) com *bind mount* de código e NestJS *watch mode*:
 
 ```bash
-# Iniciar ambiente de desenvolvimento (com logs no terminal)
 npm run docker:dev
-
-# Iniciar ambiente de desenvolvimento em segundo plano (daemon)
 npm run docker:dev:d
-
-# Parar serviços de desenvolvimento
 npm run docker:down
 ```
 
@@ -68,14 +63,8 @@ npm run docker:down
 Build otimizado sem `devDependencies` com Caddy Server e PostgreSQL:
 
 ```bash
-# Iniciar produção
 npm run docker:prod
-# ou: docker compose up --build -d
-
-# Visualizar logs em tempo real
 docker compose logs -f
-
-# Parar produção
 docker compose down
 ```
 
@@ -87,16 +76,9 @@ docker compose down
 ### 3. Migrations & Banco de Dados (Prisma)
 
 ```bash
-# Criar nova migration a partir de alterações no schema.prisma:
 npx prisma migrate dev --name nome_da_alteracao
-
-# Aplicar migrations em ambiente de produção/deploy:
 docker compose exec node npx prisma migrate deploy
-
-# Executar Seed inicial de dados:
 npm run prisma:seed
-
-# Visualizar Banco no Prisma Studio (http://localhost:5555):
 npx prisma studio
 ```
 
@@ -105,16 +87,9 @@ npx prisma studio
 ## 🧪 Testes & Qualidade
 
 ```bash
-# Testes Unitários
 npm test
-
-# Testes de Integração Ponta a Ponta com PostgreSQL Real (E2E)
 npm run test:e2e
-
-# Validar Tipagem e Build de Produção
 npm run build
-
-# Linter Ultrarrápido
 npm run lint
 ```
 
