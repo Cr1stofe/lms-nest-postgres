@@ -207,7 +207,7 @@ export class LmsService {
       order: l.order,
       free: l.free ? 1 : 0,
       created: l.created.toISOString().replace('T', ' ').substring(0, 19),
-      courseSlug: l.course.slug,
+      course_slug: l.course.slug,
     }));
   }
 
@@ -274,6 +274,8 @@ export class LmsService {
     return {
       id: currentLesson.id,
       course_id: currentLesson.courseId,
+      course_title: course.title,
+      course_slug: course.slug,
       slug: currentLesson.slug,
       title: currentLesson.title,
       seconds: currentLesson.seconds,
