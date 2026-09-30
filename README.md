@@ -145,35 +145,12 @@ npm run build
 
 ---
 
-## 🔄 CI/CD Pipelines (GitHub Actions)
+## 🔄 CI/CD Workflows
 
-Configured automated workflows in `.github/workflows/`:
+Automated pipelines configured via [GitHub Actions](https://github.com/features/actions):
 
-### 1. **Continuous Integration (`.github/workflows/ci.yml`)**
-
-Triggers on every `push` and `pull_request`:
-
-- Initializes a dedicated **PostgreSQL 18** service container.
-- Applies Prisma database migrations (`prisma migrate deploy`) and seeds test fixtures.
-- Runs linter checks (`oxlint`) and TypeScript compilation (`tsc`).
-- Executes unit tests and **37 E2E integration test suites**.
-
-### 2. **Continuous Deployment (`.github/workflows/deploy.yml`)**
-
-Triggers automatically on `push` to the `main` branch:
-
-- Connects to the **VPS via SSH**.
-- Pulls the latest commits (`git pull origin main`).
-- Rebuilds and restarts production containers (`docker compose up --build -d`).
-- Runs pending database migrations (`prisma migrate deploy`).
-
-#### 🔑 Required GitHub Secrets (`Settings > Secrets and variables > Actions`):
-
-- `SSH_HOST`: Server public IP address or hostname.
-- `SSH_USER`: SSH login user (e.g., `ubuntu`).
-- `SSH_PRIVATE_KEY`: Private SSH authentication key.
-- `WORK_DIR`: Absolute project path on the remote host (e.g., `/home/ubuntu/lms-nest-postgres`).
-- `SSH_PORT`: SSH connection port (e.g., `22`).
+- **CI (`ci.yml`):** Runs PostgreSQL 18 service containers, Prisma migrations, linters (`oxlint`), TypeScript build validation, and all 37 unit/E2E test suites on every push and pull request.
+- **CD (`deploy.yml`):** Automated production deployment to VPS via Docker upon merging into `main`.
 
 ---
 
