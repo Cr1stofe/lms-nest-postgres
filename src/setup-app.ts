@@ -6,9 +6,11 @@ import {
 } from '@nestjs/common';
 import cookieParser from 'cookie-parser';
 import { HttpExceptionFilter } from './common/filters/http-exception.filter.js';
+import { setupSwagger } from './common/swagger/swagger.config.js';
 
 export function setupApp(app: INestApplication) {
   app.setGlobalPrefix('api');
+  setupSwagger(app);
   app.enableCors({
     origin: true,
     credentials: true,

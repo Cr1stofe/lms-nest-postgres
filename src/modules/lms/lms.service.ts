@@ -421,7 +421,7 @@ export class LmsService {
     if (!cert || !cert.user || !cert.course) {
       throw new HttpException(
         { title: 'certificado não encontrado' },
-        HttpStatus.BAD_REQUEST,
+        HttpStatus.NOT_FOUND,
       );
     }
 

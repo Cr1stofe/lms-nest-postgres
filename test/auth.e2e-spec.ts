@@ -96,7 +96,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
     expect(res.body.title).toBe('email existe');
   });
 
-  it('4. Deve rejeitar login com credenciais incorretas (404)', async () => {
+  it('4. Deve rejeitar login com credenciais incorretas (401)', async () => {
     const res = await request(app.getHttpServer())
       .post('/api/auth/login')
       .send({
@@ -104,7 +104,7 @@ describe('Suíte de Testes: Autenticação, Senhas e Permissões (/auth)', () =>
         password: 'SenhaErrada123',
       });
 
-    expect(res.status).toBe(404);
+    expect(res.status).toBe(401);
     expect(res.body.title).toBe('email ou senha incorretos');
   });
 
