@@ -66,7 +66,7 @@ export class AuthService {
     if (!user) {
       throw new HttpException(
         { title: 'email ou senha incorretos' },
-        HttpStatus.NOT_FOUND,
+        HttpStatus.UNAUTHORIZED,
       );
     }
 
@@ -77,7 +77,7 @@ export class AuthService {
     if (!validPassword) {
       throw new HttpException(
         { title: 'email ou senha incorretos' },
-        HttpStatus.NOT_FOUND,
+        HttpStatus.UNAUTHORIZED,
       );
     }
 

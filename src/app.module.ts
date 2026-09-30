@@ -4,7 +4,6 @@ import {
   type MiddlewareConsumer,
 } from '@nestjs/common';
 import { AppController } from './app.controller.js';
-import { AppService } from './app.service.js';
 import { PrismaModule } from './common/prisma/prisma.module.js';
 import { SecurityModule } from './common/security/security.module.js';
 import { MailModule } from './common/mail/mail.module.js';
@@ -23,7 +22,7 @@ import { LoggerMiddleware } from './common/middleware/logger.middleware.js';
     FilesModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [],
 })
 export class AppModule implements NestModule {
   configure(consumer: MiddlewareConsumer) {

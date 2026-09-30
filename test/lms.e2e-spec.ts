@@ -26,7 +26,6 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
   let adminCookie: string;
   let testCourseSlug: string;
   let testCourseId: number;
-  let testLessonId: number;
   let testLessonSlug: string;
   let createdCertificateId: string;
 
@@ -48,7 +47,6 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
     if (firstCourse && firstCourse.lessonsList.length > 0) {
       testCourseSlug = firstCourse.slug;
       testCourseId = firstCourse.id;
-      testLessonId = firstCourse.lessonsList[0].id;
       testLessonSlug = firstCourse.lessonsList[0].slug;
     }
 
@@ -222,5 +220,14 @@ describe('Suíte de Testes: Cursos, Aulas, Admin e Certificados (/lms)', () => {
 
     expect(res.status).toBe(200);
     expect(res.body.title).toBe('curso resetado');
+  });
+
+  it('12. Deve retornar 404 ao solicitar download de certificado inexistente', async () => {
+    const res = await request(app.getHttpServer()).get(
+      '/api/lms/certificate/00000000-0000-0000-0000-000000000000',
+    );
+
+    expect(res.status).toBe(404);
+    expect(res.body.title).toBe('certificado não encontrado');
   });
 });

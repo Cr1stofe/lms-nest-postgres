@@ -12,21 +12,29 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy via SSH to VPS
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          passphrase: ${{ secrets.SSH_PASSPHRASE }}
-          port: ${{ secrets.SSH_PORT || 22 }}
-          script: |
+      - name: Deploy via Native OpenSSH
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USER: ${{ secrets.SSH_USER }}
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          WORK_DIR: ${{ secrets.WORK_DIR }}
+          SSH_PORT: ${{ secrets.SSH_PORT || '22' }}
+        run: |
+          set -e
+          echo "🚀 Iniciando deploy contínuo na VPS via OpenSSH nativo..."
+
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          eval $(ssh-agent -s)
+          echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+
+          ssh -o StrictHostKeyChecking=no -p "$SSH_PORT" "$SSH_USER@$SSH_HOST" << EOF
             set -e
-            echo "🚀 Iniciando deploy contínuo na VPS..."
-            cd ${{ secrets.WORK_DIR || '~/lms-nest-postgres' }}
+            cd "$WORK_DIR"
             git pull origin main
             docker compose up --build -d
             docker compose exec -T node npx prisma migrate deploy
             docker image prune -f
             echo "✅ Deploy concluído com sucesso!"
-
+          EOF

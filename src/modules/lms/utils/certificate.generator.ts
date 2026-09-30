@@ -21,7 +21,7 @@ function formatDate(dateStr: string): string {
       }).format(parsed);
     }
   } catch {
-    // fallback
+    return dateStr;
   }
   return dateStr;
 }
@@ -77,102 +77,105 @@ export function generateCertificate(c: CertificateData): Buffer {
   const height = doc.internal.pageSize.getHeight();
   const centerX = width / 2;
 
-  doc.setFillColor('#090d16');
+  doc.setFillColor('#f8fafc');
   doc.rect(0, 0, width, height, 'F');
 
-  doc.setFillColor('#0f172a');
-  doc.roundedRect(15, 15, width - 30, height - 30, 8, 8, 'F');
-  doc.setFillColor('#0a0e1a');
-  doc.roundedRect(20, 20, width - 40, height - 40, 6, 6, 'F');
+  doc.setFillColor('#ffffff');
+  doc.roundedRect(18, 18, width - 36, height - 36, 6, 6, 'F');
 
-  doc.setDrawColor('#d4af37');
-  doc.setLineWidth(1.5);
-  doc.rect(28, 28, width - 56, height - 56);
+  doc.setDrawColor('#e2e8f0');
+  doc.setLineWidth(1.2);
+  doc.roundedRect(18, 18, width - 36, height - 36, 6, 6, 'S');
 
-  doc.setDrawColor('#856514');
+  doc.setFillColor('#2563eb');
+  doc.rect(18, 18, width - 36, 6, 'F');
+  doc.setFillColor('#4f46e5');
+  doc.rect(centerX - 100, 18, 200, 6, 'F');
+
+  doc.setDrawColor('#cbd5e1');
   doc.setLineWidth(0.75);
-  doc.rect(34, 34, width - 68, height - 68);
+  doc.rect(30, 30, width - 60, height - 60);
 
-  const cornerSize = 18;
+  const cornerSize = 16;
   const corners = [
-    { x: 34, y: 34, dx: 1, dy: 1 },
-    { x: width - 34, y: 34, dx: -1, dy: 1 },
-    { x: 34, y: height - 34, dx: 1, dy: -1 },
-    { x: width - 34, y: height - 34, dx: -1, dy: -1 },
+    { x: 30, y: 30, dx: 1, dy: 1 },
+    { x: width - 30, y: 30, dx: -1, dy: 1 },
+    { x: 30, y: height - 30, dx: 1, dy: -1 },
+    { x: width - 30, y: height - 30, dx: -1, dy: -1 },
   ];
 
   for (const corner of corners) {
-    const lx = corner.x + corner.dx * 8;
-    const ly = corner.y + corner.dy * 8;
-    drawDiamond(doc, lx, ly, 8, 8, '#d4af37');
+    const lx = corner.x + corner.dx * 7;
+    const ly = corner.y + corner.dy * 7;
+    drawDiamond(doc, lx, ly, 7, 7, '#2563eb');
 
-    doc.setDrawColor('#d4af37');
-    doc.setLineWidth(1);
+    doc.setDrawColor('#2563eb');
+    doc.setLineWidth(1.2);
     doc.line(corner.x, corner.y, corner.x + corner.dx * cornerSize, corner.y);
     doc.line(corner.x, corner.y, corner.x, corner.y + corner.dy * cornerSize);
   }
 
-  doc.setDrawColor('#d4af37');
+  doc.setDrawColor('#e2e8f0');
   doc.setLineWidth(1);
-  doc.line(centerX - 120, 65, centerX - 18, 65);
-  doc.line(centerX + 18, 65, centerX + 120, 65);
+  doc.line(centerX - 130, 62, centerX - 20, 62);
+  doc.line(centerX + 20, 62, centerX + 130, 62);
 
-  drawDiamond(doc, centerX, 65, 12, 12, '#e5c07b');
+  drawDiamond(doc, centerX, 62, 10, 10, '#2563eb');
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor('#94a3b8');
+  doc.setFontSize(8);
+  doc.setTextColor('#64748b');
   doc.text(
-    'PLATAFORMA LMS   |   CERTIFICAÇÃO PROFISSIONAL DE EXCELÊNCIA',
+    'PLATAFORMA LMS   •   CERTIFICAÇÃO PROFISSIONAL DE EXCELÊNCIA',
     centerX,
-    88,
+    84,
     { align: 'center' },
   );
 
-  doc.setFont('times', 'bold');
-  doc.setFontSize(30);
-  doc.setTextColor('#f8fafc');
-  doc.text('CERTIFICADO DE CONCLUSÃO', centerX, 126, { align: 'center' });
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(28);
+  doc.setTextColor('#0f172a');
+  doc.text('CERTIFICADO DE CONCLUSÃO', centerX, 122, { align: 'center' });
 
-  doc.setDrawColor('#d4af37');
-  doc.setLineWidth(1);
-  doc.line(centerX - 180, 138, centerX + 180, 138);
-  doc.setFillColor('#e5c07b');
-  doc.circle(centerX, 138, 2.5, 'F');
+  doc.setDrawColor('#2563eb');
+  doc.setLineWidth(1.5);
+  doc.line(centerX - 120, 134, centerX + 120, 134);
+  doc.setFillColor('#1d4ed8');
+  doc.circle(centerX, 134, 2.5, 'F');
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(11);
-  doc.setTextColor('#94a3b8');
-  doc.text('Certificamos para os devidos fins que', centerX, 168, {
+  doc.setTextColor('#475569');
+  doc.text('Certificamos para os devidos fins que', centerX, 164, {
     align: 'center',
   });
 
-  doc.setFont('times', 'bold');
+  doc.setFont('helvetica', 'bold');
   doc.setFontSize(26);
-  doc.setTextColor('#ffffff');
-  doc.text(c.name, centerX, 206, { align: 'center' });
+  doc.setTextColor('#0f172a');
+  doc.text(c.name, centerX, 202, { align: 'center' });
 
-  doc.setDrawColor('#334155');
+  doc.setDrawColor('#e2e8f0');
   doc.setLineWidth(1);
-  doc.line(centerX - 150, 218, centerX + 150, 218);
-  doc.setDrawColor('#d4af37');
-  doc.setLineWidth(1.5);
-  doc.line(centerX - 40, 218, centerX + 40, 218);
+  doc.line(centerX - 160, 214, centerX + 160, 214);
+  doc.setDrawColor('#2563eb');
+  doc.setLineWidth(2);
+  doc.line(centerX - 40, 214, centerX + 40, 214);
 
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(11);
-  doc.setTextColor('#94a3b8');
+  doc.setTextColor('#475569');
   doc.text(
     'concluiu com êxito todos os módulos e requisitos do curso:',
     centerX,
-    244,
+    240,
     { align: 'center' },
   );
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(18);
-  doc.setTextColor('#fcd34d');
-  doc.text(`"${c.title}"`, centerX, 274, { align: 'center' });
+  doc.setTextColor('#1d4ed8');
+  doc.text(`"${c.title}"`, centerX, 268, { align: 'center' });
 
   const formattedDate = formatDate(c.completed);
   const badges = [
@@ -181,27 +184,27 @@ export function generateCertificate(c: CertificateData): Buffer {
     { label: 'DATA DE EMISSÃO', value: formattedDate },
   ];
 
-  const badgeWidth = 160;
+  const badgeWidth = 164;
   const badgeHeight = 44;
-  const badgeGap = 20;
+  const badgeGap = 18;
   const totalBadgesWidth =
     badges.length * badgeWidth + (badges.length - 1) * badgeGap;
   const startBadgeX = (width - totalBadgesWidth) / 2;
-  const badgeY = 302;
+  const badgeY = 296;
 
   badges.forEach((b, idx) => {
     const bx = startBadgeX + idx * (badgeWidth + badgeGap);
 
-    doc.setFillColor('#0f172a');
+    doc.setFillColor('#f8fafc');
     doc.roundedRect(bx, badgeY, badgeWidth, badgeHeight, 5, 5, 'F');
 
-    doc.setDrawColor('#1e293b');
+    doc.setDrawColor('#e2e8f0');
     doc.setLineWidth(1);
     doc.roundedRect(bx, badgeY, badgeWidth, badgeHeight, 5, 5, 'S');
 
-    doc.setDrawColor('#d4af37');
+    doc.setDrawColor('#2563eb');
     doc.setLineWidth(1.5);
-    doc.line(bx + 12, badgeY, bx + badgeWidth - 12, badgeY);
+    doc.line(bx + 14, badgeY, bx + badgeWidth - 14, badgeY);
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(7.5);
@@ -210,19 +213,19 @@ export function generateCertificate(c: CertificateData): Buffer {
 
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(10.5);
-    doc.setTextColor('#f8fafc');
+    doc.setTextColor('#0f172a');
     doc.text(b.value, bx + badgeWidth / 2, badgeY + 32, { align: 'center' });
   });
 
-  const footerY = 378;
+  const footerY = 372;
 
   const sealCenterX = 180;
   const sealCenterY = footerY + 36;
-  const sealRadius = 31;
+  const sealRadius = 30;
 
   const numRays = 20;
-  doc.setDrawColor('#a17d1e');
-  doc.setLineWidth(1);
+  doc.setDrawColor('#3b82f6');
+  doc.setLineWidth(0.75);
   for (let i = 0; i < numRays; i++) {
     const angle = (i * 2 * Math.PI) / numRays;
     const x1 = sealCenterX + sealRadius * Math.cos(angle);
@@ -232,48 +235,48 @@ export function generateCertificate(c: CertificateData): Buffer {
     doc.line(x1, y1, x2, y2);
   }
 
-  doc.setDrawColor('#d4af37');
+  doc.setDrawColor('#2563eb');
   doc.setLineWidth(1.5);
   doc.circle(sealCenterX, sealCenterY, sealRadius, 'S');
 
-  doc.setDrawColor('#856514');
+  doc.setDrawColor('#93c5fd');
   doc.setLineWidth(0.75);
   doc.circle(sealCenterX, sealCenterY, sealRadius - 5, 'S');
 
-  doc.setFillColor('#0f172a');
+  doc.setFillColor('#eff6ff');
   doc.circle(sealCenterX, sealCenterY, sealRadius - 6, 'F');
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(5.5);
-  doc.setTextColor('#e5c07b');
-  doc.text('OFFICIAL', sealCenterX, sealCenterY - 11, { align: 'center' });
+  doc.setTextColor('#1d4ed8');
+  doc.text('OFFICIAL', sealCenterX, sealCenterY - 10, { align: 'center' });
 
-  drawVectorStar(doc, sealCenterX - 11, sealCenterY, 3.2, '#fcd34d');
-  drawVectorStar(doc, sealCenterX, sealCenterY - 1, 4.4, '#fcd34d');
-  drawVectorStar(doc, sealCenterX + 11, sealCenterY, 3.2, '#fcd34d');
+  drawVectorStar(doc, sealCenterX - 11, sealCenterY + 1, 3.2, '#f59e0b');
+  drawVectorStar(doc, sealCenterX, sealCenterY, 4.4, '#f59e0b');
+  drawVectorStar(doc, sealCenterX + 11, sealCenterY + 1, 3.2, '#f59e0b');
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(5.5);
-  doc.setTextColor('#e5c07b');
+  doc.setTextColor('#1d4ed8');
   doc.text('VERIFIED', sealCenterX, sealCenterY + 12, { align: 'center' });
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(7.5);
-  doc.setTextColor('#94a3b8');
-  doc.text('Selo de Autenticidade', sealCenterX, sealCenterY + 45, {
+  doc.setTextColor('#0f172a');
+  doc.text('Selo de Autenticidade', sealCenterX, sealCenterY + 44, {
     align: 'center',
   });
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7);
   doc.setTextColor('#64748b');
-  doc.text('Conformidade Digital', sealCenterX, sealCenterY + 55, {
+  doc.text('Conformidade Digital', sealCenterX, sealCenterY + 54, {
     align: 'center',
   });
 
   const signCenterX = width - 180;
   const signCenterY = footerY + 36;
 
-  doc.setDrawColor('#94a3b8');
+  doc.setDrawColor('#2563eb');
   doc.setLineWidth(1.2);
   doc.line(
     signCenterX - 60,
@@ -300,7 +303,7 @@ export function generateCertificate(c: CertificateData): Buffer {
     signCenterY - 4,
   );
 
-  doc.setDrawColor('#334155');
+  doc.setDrawColor('#cbd5e1');
   doc.setLineWidth(1);
   doc.line(
     signCenterX - 90,
@@ -310,37 +313,37 @@ export function generateCertificate(c: CertificateData): Buffer {
   );
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(9.5);
-  doc.setTextColor('#e2e8f0');
+  doc.setFontSize(9);
+  doc.setTextColor('#0f172a');
   doc.text('Diretoria Acadêmica & Ensino', signCenterX, signCenterY + 20, {
     align: 'center',
   });
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(8);
+  doc.setFontSize(7.5);
   doc.setTextColor('#64748b');
-  doc.text('Certificação Digital Homologada', signCenterX, signCenterY + 32, {
+  doc.text('Certificação Digital Homologada', signCenterX, signCenterY + 31, {
     align: 'center',
   });
 
-  const verifyY = height - 70;
+  const verifyY = height - 68;
 
-  doc.setFillColor('#0b101d');
-  doc.roundedRect(48, verifyY - 10, width - 96, 32, 4, 4, 'F');
-  doc.setDrawColor('#1e293b');
+  doc.setFillColor('#f1f5f9');
+  doc.roundedRect(44, verifyY - 10, width - 88, 30, 4, 4, 'F');
+  doc.setDrawColor('#e2e8f0');
   doc.setLineWidth(0.75);
-  doc.roundedRect(48, verifyY - 10, width - 96, 32, 4, 4, 'S');
+  doc.roundedRect(44, verifyY - 10, width - 88, 30, 4, 4, 'S');
 
   doc.setFont('courier', 'bold');
-  doc.setFontSize(8.5);
-  doc.setTextColor('#94a3b8');
-  doc.text(`CÓDIGO DE AUTENTICIDADE: ${c.id}`, 65, verifyY + 9);
+  doc.setFontSize(8);
+  doc.setTextColor('#475569');
+  doc.text(`CÓDIGO DE AUTENTICIDADE: ${c.id}`, 58, verifyY + 9);
 
   const verificationUrl = `${SERVER_NAME}/api/lms/certificate/${c.id}`;
-  doc.setFont('courier', 'normal');
+  doc.setFont('courier', 'bold');
   doc.setFontSize(8);
-  doc.setTextColor('#60a5fa');
-  doc.text(`Validar em: ${verificationUrl}`, width - 65, verifyY + 9, {
+  doc.setTextColor('#2563eb');
+  doc.text(`Validar em: ${verificationUrl}`, width - 58, verifyY + 9, {
     align: 'right',
   });
 
