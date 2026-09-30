@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class ResetCourseDto {
   @ApiProperty({
-    description: 'ID numérico do curso a ser resetado para o aluno',
+    description: 'Unique numeric course ID whose progress will be reset',
     example: 1,
     minimum: 1,
   })

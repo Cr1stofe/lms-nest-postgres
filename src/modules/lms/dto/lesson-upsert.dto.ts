@@ -12,8 +12,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class LessonUpsertDto {
   @ApiProperty({
-    description: 'Slug do curso pai da aula',
-    example: 'html-e-css-para-iniciantes',
+    description: 'Slug of the parent course',
+    example: 'html-css-for-beginners',
     minLength: 2,
     maxLength: 64,
   })
@@ -26,8 +26,8 @@ export class LessonUpsertDto {
   courseSlug: string;
 
   @ApiProperty({
-    description: 'Slug identificador único da aula dentro do curso',
-    example: 'tags-basicas',
+    description: 'Unique lesson slug identifier within the course',
+    example: 'basic-tags',
     minLength: 2,
     maxLength: 64,
   })
@@ -40,8 +40,8 @@ export class LessonUpsertDto {
   slug: string;
 
   @ApiProperty({
-    description: 'Título descritivo da aula',
-    example: 'Tags Básicas e Estrutura Semântica',
+    description: 'Descriptive lesson title',
+    example: 'Semantic HTML & Core Document Structure',
     minLength: 2,
     maxLength: 128,
   })
@@ -51,7 +51,7 @@ export class LessonUpsertDto {
   title: string;
 
   @ApiProperty({
-    description: 'Duração total do vídeo em segundos',
+    description: 'Video playback duration in seconds',
     example: 600,
     minimum: 0,
   })
@@ -61,23 +61,23 @@ export class LessonUpsertDto {
   seconds: number;
 
   @ApiProperty({
-    description: 'Caminho ou URL do arquivo de vídeo',
-    example: '/html/tags-basicas.mp4',
+    description: 'Video file asset path or URL',
+    example: '/html/basic-tags.mp4',
   })
   @IsString({ message: 'vídeo deve ser um texto' })
   @IsNotEmpty({ message: 'vídeo é obrigatório' })
   video: string;
 
   @ApiProperty({
-    description: 'Conteúdo textual e resumo da aula',
-    example: 'Aprenda sobre html, head, body, h1-h6, p, a e img.',
+    description: 'Lesson textual content, notes, and summary',
+    example: 'Deep-dive into html, head, body, headings, links, and accessible media tags.',
   })
   @IsString({ message: 'descrição deve ser um texto' })
   @IsNotEmpty({ message: 'descrição é obrigatória' })
   description: string;
 
   @ApiProperty({
-    description: 'Posição ordinal de exibição da aula no curso',
+    description: 'Display sort order index of the lesson within the course',
     example: 1,
     minimum: 1,
   })
@@ -87,7 +87,7 @@ export class LessonUpsertDto {
   order: number;
 
   @ApiProperty({
-    description: 'Define se a aula é pública/gratuita (1) ou restrita a alunos (0)',
+    description: 'Public preview status: 1 for free/preview, 0 for enrolled students only',
     example: 1,
     enum: [0, 1],
   })

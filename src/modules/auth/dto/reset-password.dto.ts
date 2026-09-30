@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class ResetPasswordDto {
   @ApiProperty({
-    description: 'Token criptográfico de recuperação enviado por email',
+    description: 'Cryptographic recovery token received via email',
     example: 'dGhpcy1pcy1hLXNhbXBsZS10b2tlbi1mb3ItcGFzc3dvcmQtcmVzZXQ',
     minLength: 32,
     maxLength: 128,
@@ -14,8 +14,8 @@ export class ResetPasswordDto {
   token: string;
 
   @ApiProperty({
-    description: 'Nova senha cadastrada para a conta (mínimo de 8 caracteres)',
-    example: 'NovaSenhaSegura@2026',
+    description: 'New account password (minimum 8 characters)',
+    example: 'Secur3P@ssw0rd!2026',
     minLength: 8,
     maxLength: 72,
   })

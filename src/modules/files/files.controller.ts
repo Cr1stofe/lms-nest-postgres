@@ -38,11 +38,11 @@ export class FilesController {
 
   @Public()
   @Get('public/:name')
-  @ApiOperation({ summary: 'Servir arquivo público com suporte a ETag e cache HTTP (304 Not Modified)' })
-  @ApiParam({ name: 'name', description: 'Nome do arquivo público com extensão', example: 'thumbnail-curso.jpg' })
-  @ApiResponse({ status: 200, description: 'Fluxo binário do arquivo com headers de cache' })
-  @ApiResponse({ status: 304, description: 'Não modificado (se If-None-Match coincidir com ETag)' })
-  @ApiResponse({ status: 404, description: 'Arquivo público não encontrado' })
+  @ApiOperation({ summary: 'Serve public asset with ETag validation and HTTP 304 caching' })
+  @ApiParam({ name: 'name', description: 'Public filename with extension', example: 'course-cover.jpg' })
+  @ApiResponse({ status: 200, description: 'Binary asset stream with caching headers' })
+  @ApiResponse({ status: 304, description: 'Not Modified (matches ETag conditional request)' })
+  @ApiResponse({ status: 404, description: 'Public file not found' })
   async servePublic(
     @Param() params: FileParamDto,
     @Req() req: Request,
@@ -58,10 +58,10 @@ export class FilesController {
   @Roles('user')
   @Get('private/:name')
   @ApiCookieAuth('__Secure-sid')
-  @ApiOperation({ summary: 'Acesso protegido a arquivos privados via X-Accel-Redirect (Caddy/Nginx)' })
-  @ApiParam({ name: 'name', description: 'Nome do arquivo privado', example: 'apostila-exclusiva.pdf' })
-  @ApiResponse({ status: 200, description: 'Autorização validada e header X-Accel-Redirect emitido' })
-  @ApiResponse({ status: 401, description: 'Não autenticado' })
+  @ApiOperation({ summary: 'Authorize and delegate private file streaming via X-Accel-Redirect (Caddy/Nginx)' })
+  @ApiParam({ name: 'name', description: 'Private filename with extension', example: 'exclusive-guide.pdf' })
+  @ApiResponse({ status: 200, description: 'Authorization granted with X-Accel-Redirect header' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   servePrivate(@Param() params: FileParamDto, @Res() res: Response) {
     res.setHeader('X-Accel-Redirect', params.name);
     res.status(HttpStatus.OK).end();
@@ -70,15 +70,15 @@ export class FilesController {
   @Roles('admin')
   @Post('upload')
   @ApiCookieAuth('__Secure-sid')
-  @ApiOperation({ summary: 'Upload de arquivo por streaming binário (Exclusivo Admin, até 150MB)' })
+  @ApiOperation({ summary: 'Stream binary file upload (Admin only, up to 150MB)' })
   @ApiConsumes('application/octet-stream')
-  @ApiHeader({ name: 'x-filename', description: 'Nome original do arquivo com extensão', required: true, example: 'aula-01-intro.mp4' })
-  @ApiHeader({ name: 'x-visibility', description: 'Visibilidade do arquivo (public ou private)', required: false, example: 'public' })
-  @ApiBody({ description: 'Payload binário do arquivo (application/octet-stream)', required: true })
-  @ApiResponse({ status: 201, description: 'Arquivo processado e salvo com sucesso' })
-  @ApiResponse({ status: 403, description: 'Acesso negado (requer papel de admin)' })
-  @ApiResponse({ status: 413, description: 'Arquivo excede o limite máximo permitido de 150MB' })
-  @ApiResponse({ status: 415, description: 'Content-Type inválido (deve ser application/octet-stream)' })
+  @ApiHeader({ name: 'x-filename', description: 'Original filename with extension', required: true, example: 'lesson-01-intro.mp4' })
+  @ApiHeader({ name: 'x-visibility', description: 'File visibility target (public or private)', required: false, example: 'public' })
+  @ApiBody({ description: 'Binary payload stream (application/octet-stream)', required: true })
+  @ApiResponse({ status: 201, description: 'File uploaded and processed successfully' })
+  @ApiResponse({ status: 403, description: 'Forbidden (Admin role required)' })
+  @ApiResponse({ status: 413, description: 'Payload too large (maximum 150MB exceeded)' })
+  @ApiResponse({ status: 415, description: 'Unsupported Media Type (must be application/octet-stream)' })
   async upload(@Req() req: Request, @Res() res: Response) {
     const contentType = req.headers['content-type'];
     if (contentType !== 'application/octet-stream') {

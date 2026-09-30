@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class FileParamDto {
   @ApiProperty({
-    description: 'Nome do arquivo armazenado',
+    description: 'Stored filename with extension',
     example: 'avatar-user.png',
   })
   @IsString({ message: 'nome de arquivo deve ser um texto' })

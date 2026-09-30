@@ -52,10 +52,10 @@ export class AuthController {
 
   @Public()
   @Post('user')
-  @ApiOperation({ summary: 'Cadastro de novos usuários/alunos' })
-  @ApiResponse({ status: 201, description: 'Usuário cadastrado com sucesso' })
-  @ApiResponse({ status: 409, description: 'Email ou username já cadastrado' })
-  @ApiResponse({ status: 422, description: 'Erro de validação dos campos' })
+  @ApiOperation({ summary: 'Register a new student account' })
+  @ApiResponse({ status: 201, description: 'User registered successfully' })
+  @ApiResponse({ status: 409, description: 'Email or username already in use' })
+  @ApiResponse({ status: 422, description: 'Validation failed on input payload' })
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
@@ -63,10 +63,10 @@ export class AuthController {
   @Public()
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Autenticação e emissão de cookie de sessão' })
-  @ApiResponse({ status: 200, description: 'Login bem-sucedido com cookie __Secure-sid emitido' })
-  @ApiResponse({ status: 401, description: 'Email ou senha incorretos' })
-  @ApiResponse({ status: 422, description: 'Erro de validação dos campos' })
+  @ApiOperation({ summary: 'Authenticate user and issue session cookie' })
+  @ApiResponse({ status: 200, description: 'Authenticated successfully with __Secure-sid cookie' })
+  @ApiResponse({ status: 401, description: 'Invalid email or password' })
+  @ApiResponse({ status: 422, description: 'Validation failed on input payload' })
   async login(
     @Body() dto: LoginDto,
     @Req() req: Request,
@@ -84,8 +84,8 @@ export class AuthController {
   @Public()
   @Delete('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Encerramento e invalidação de sessão' })
-  @ApiResponse({ status: 204, description: 'Sessão destruída e cookie limpo' })
+  @ApiOperation({ summary: 'Terminate active session and clear cookie' })
+  @ApiResponse({ status: 204, description: 'Session destroyed and cookie cleared' })
   async logout(@Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const sid = req.cookies?.[COOKIE_SID_KEY] || req.cookies?.['sid'];
     await this.sessionService.invalidate(sid);
@@ -96,9 +96,9 @@ export class AuthController {
 
   @Get('session')
   @ApiCookieAuth('__Secure-sid')
-  @ApiOperation({ summary: 'Consulta os dados da sessão do usuário autenticado' })
-  @ApiResponse({ status: 200, description: 'Dados do perfil e papel (role) do usuário' })
-  @ApiResponse({ status: 401, description: 'Sessão inválida ou não autenticada' })
+  @ApiOperation({ summary: 'Get profile and role of authenticated user' })
+  @ApiResponse({ status: 200, description: 'Current session user profile data' })
+  @ApiResponse({ status: 401, description: 'Unauthorized or invalid session' })
   getSession(@CurrentUser() session: SessionData) {
     return {
       title: 'valida',
@@ -111,10 +111,10 @@ export class AuthController {
 
   @Put('password/update')
   @ApiCookieAuth('__Secure-sid')
-  @ApiOperation({ summary: 'Atualização de senha do usuário logado' })
-  @ApiResponse({ status: 200, description: 'Senha atualizada com renovação de sessão' })
-  @ApiResponse({ status: 400, description: 'Senha atual incorreta' })
-  @ApiResponse({ status: 401, description: 'Não autorizado' })
+  @ApiOperation({ summary: 'Update password for authenticated user' })
+  @ApiResponse({ status: 200, description: 'Password updated and session renewed' })
+  @ApiResponse({ status: 400, description: 'Current password is incorrect' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async updatePassword(
     @Body() dto: UpdatePasswordDto,
     @CurrentUser('user_id') userId: number,
@@ -139,8 +139,8 @@ export class AuthController {
   @Public()
   @Post('password/forgot')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Solicitação de recuperação de senha por email' })
-  @ApiResponse({ status: 200, description: 'Email de recuperação enviado (se a conta existir)' })
+  @ApiOperation({ summary: 'Request password reset link via email' })
+  @ApiResponse({ status: 200, description: 'Password reset email dispatched if account exists' })
   async forgotPassword(@Body() dto: ForgotPasswordDto, @Req() req: Request) {
     const ip = req.ip || req.socket?.remoteAddress || '';
     const ua = (req.headers['user-agent'] as string) || '';
@@ -157,9 +157,9 @@ export class AuthController {
   @Public()
   @Post('password/reset')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Redefinição de senha utilizando token criptográfico' })
-  @ApiResponse({ status: 200, description: 'Senha redefinida com sucesso' })
-  @ApiResponse({ status: 400, description: 'Token inválido ou expirado' })
+  @ApiOperation({ summary: 'Reset account password using secure token' })
+  @ApiResponse({ status: 200, description: 'Password reset successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired reset token' })
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto.token, dto.new_password);
   }
@@ -167,10 +167,11 @@ export class AuthController {
   @Roles('admin')
   @Get('users/search')
   @ApiCookieAuth('__Secure-sid')
-  @ApiOperation({ summary: 'Busca paginada de usuários (Exclusivo Admin)' })
-  @ApiHeader({ name: 'X-Total-Count', description: 'Total de registros encontrados' })
-  @ApiResponse({ status: 200, description: 'Lista de usuários encontrados' })
-  @ApiResponse({ status: 403, description: 'Acesso negado (requer papel de admin)' })
+  @ApiOperation({ summary: 'Search users directory with pagination (Admin only)' })
+  @ApiHeader({ name: 'X-Total-Count', description: 'Total matched records count header' })
+  @ApiResponse({ status: 200, description: 'Paginated user list' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 403, description: 'Forbidden: requires admin role' })
   async searchUsers(
     @Query() query: UsersQueryDto,
     @Res({ passthrough: true }) res: Response,

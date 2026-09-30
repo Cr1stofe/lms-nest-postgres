@@ -3,8 +3,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class ForgotPasswordDto {
   @ApiProperty({
-    description: 'Email cadastrado para envio do link de recuperação',
-    example: 'henrique.barros@exemplo.com',
+    description: 'Registered user email address for password recovery link dispatch',
+    example: 'student@example.com',
   })
   @IsEmail({}, { message: 'email inválido' })
   @IsNotEmpty({ message: 'email é obrigatório' })

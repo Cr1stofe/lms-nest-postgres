@@ -7,10 +7,10 @@ import { Public } from './common/decorators/public.decorator.js';
 export class AppController {
   @Public()
   @Get('health')
-  @ApiOperation({ summary: 'Verificação de integridade e saúde da aplicação' })
+  @ApiOperation({ summary: 'Application health check and uptime status' })
   @ApiResponse({
     status: 200,
-    description: 'Status do sistema e timestamp ISO',
+    description: 'System status and current ISO timestamp',
     schema: {
       type: 'object',
       properties: {

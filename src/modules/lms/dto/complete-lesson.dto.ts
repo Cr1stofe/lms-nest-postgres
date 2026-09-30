@@ -4,7 +4,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CompleteLessonDto {
   @ApiProperty({
-    description: 'ID numérico do curso',
+    description: 'Unique numeric course ID',
     example: 1,
     minimum: 1,
   })
@@ -14,7 +14,7 @@ export class CompleteLessonDto {
   courseId: number;
 
   @ApiProperty({
-    description: 'ID numérico da aula a ser concluída',
+    description: 'Unique numeric lesson ID to complete',
     example: 1,
     minimum: 1,
   })

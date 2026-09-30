@@ -3,7 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdatePasswordDto {
   @ApiProperty({
-    description: 'Senha atual do usuário logado',
+    description: 'Current password of the authenticated user',
     example: 'P@ssw0rd123',
   })
   @IsString({ message: 'senha atual deve ser um texto' })
@@ -11,7 +11,7 @@ export class UpdatePasswordDto {
   password: string;
 
   @ApiProperty({
-    description: 'Nova senha forte (mínimo de 8 caracteres)',
+    description: 'New password (minimum 8 characters)',
     example: 'NovaSenhaSegura@2026',
     minLength: 8,
     maxLength: 72,

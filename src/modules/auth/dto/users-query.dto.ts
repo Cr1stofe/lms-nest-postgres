@@ -4,7 +4,7 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UsersQueryDto {
   @ApiPropertyOptional({
-    description: 'Termo de busca por nome, username ou email',
+    description: 'Search term filtering by name, username, or email',
     example: 'henrique',
   })
   @IsOptional()
@@ -12,7 +12,7 @@ export class UsersQueryDto {
   s?: string;
 
   @ApiPropertyOptional({
-    description: 'Número da página para paginação (padrão: 1)',
+    description: 'Page index for paginated results (default: 1)',
     example: 1,
     default: 1,
   })
