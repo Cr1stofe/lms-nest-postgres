@@ -33,6 +33,18 @@ import { UpdatePasswordDto } from './dto/update-password.dto.js';
 import { ForgotPasswordDto } from './dto/forgot-password.dto.js';
 import { ResetPasswordDto } from './dto/reset-password.dto.js';
 import { UsersQueryDto } from './dto/users-query.dto.js';
+import {
+  MessageResponseDto,
+  SessionUserResponseDto,
+  UserListItemDto,
+} from './dto/auth-response.dto.js';
+import {
+  BadRequestErrorDto,
+  ConflictErrorDto,
+  ForbiddenErrorDto,
+  UnauthorizedErrorDto,
+  ValidationErrorDto,
+} from '../../common/dto/problem-details.dto.js';
 import { Public } from '../../common/decorators/public.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
 import { CurrentUser } from '../../common/decorators/current-user.decorator.js';
@@ -53,9 +65,9 @@ export class AuthController {
   @Public()
   @Post('user')
   @ApiOperation({ summary: 'Register a new student account' })
-  @ApiResponse({ status: 201, description: 'User registered successfully' })
-  @ApiResponse({ status: 409, description: 'Email or username already in use' })
-  @ApiResponse({ status: 422, description: 'Validation failed on input payload' })
+  @ApiResponse({ status: 201, description: 'User registered successfully', type: MessageResponseDto })
+  @ApiResponse({ status: 409, description: 'Email or username already in use', type: ConflictErrorDto })
+  @ApiResponse({ status: 422, description: 'Validation failed on input payload', type: ValidationErrorDto })
   async register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
@@ -64,9 +76,9 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Authenticate user and issue session cookie' })
-  @ApiResponse({ status: 200, description: 'Authenticated successfully with __Secure-sid cookie' })
-  @ApiResponse({ status: 401, description: 'Invalid email or password' })
-  @ApiResponse({ status: 422, description: 'Validation failed on input payload' })
+  @ApiResponse({ status: 200, description: 'Authenticated successfully with __Secure-sid cookie', type: MessageResponseDto })
+  @ApiResponse({ status: 401, description: 'Invalid email or password', type: UnauthorizedErrorDto })
+  @ApiResponse({ status: 422, description: 'Validation failed on input payload', type: ValidationErrorDto })
   async login(
     @Body() dto: LoginDto,
     @Req() req: Request,
@@ -97,8 +109,8 @@ export class AuthController {
   @Get('session')
   @ApiCookieAuth('__Secure-sid')
   @ApiOperation({ summary: 'Get profile and role of authenticated user' })
-  @ApiResponse({ status: 200, description: 'Current session user profile data' })
-  @ApiResponse({ status: 401, description: 'Unauthorized or invalid session' })
+  @ApiResponse({ status: 200, description: 'Current session user profile data', type: SessionUserResponseDto })
+  @ApiResponse({ status: 401, description: 'Unauthorized or invalid session', type: UnauthorizedErrorDto })
   getSession(@CurrentUser() session: SessionData) {
     return {
       title: 'valida',
@@ -112,9 +124,10 @@ export class AuthController {
   @Put('password/update')
   @ApiCookieAuth('__Secure-sid')
   @ApiOperation({ summary: 'Update password for authenticated user' })
-  @ApiResponse({ status: 200, description: 'Password updated and session renewed' })
-  @ApiResponse({ status: 400, description: 'Current password is incorrect' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 200, description: 'Password updated and session renewed', type: MessageResponseDto })
+  @ApiResponse({ status: 400, description: 'Current password is incorrect', type: BadRequestErrorDto })
+  @ApiResponse({ status: 401, description: 'Unauthorized', type: UnauthorizedErrorDto })
+  @ApiResponse({ status: 422, description: 'Validation failed on input payload', type: ValidationErrorDto })
   async updatePassword(
     @Body() dto: UpdatePasswordDto,
     @CurrentUser('user_id') userId: number,
@@ -140,7 +153,9 @@ export class AuthController {
   @Post('password/forgot')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Request password reset link via email' })
-  @ApiResponse({ status: 200, description: 'Password reset email dispatched if account exists' })
+  @ApiResponse({ status: 200, description: 'Password reset email dispatched if account exists', type: MessageResponseDto })
+  @ApiResponse({ status: 400, description: 'Error sending email', type: BadRequestErrorDto })
+  @ApiResponse({ status: 422, description: 'Validation failed on input payload', type: ValidationErrorDto })
   async forgotPassword(@Body() dto: ForgotPasswordDto, @Req() req: Request) {
     const ip = req.ip || req.socket?.remoteAddress || '';
     const ua = (req.headers['user-agent'] as string) || '';
@@ -158,8 +173,9 @@ export class AuthController {
   @Post('password/reset')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset account password using secure token' })
-  @ApiResponse({ status: 200, description: 'Password reset successfully' })
-  @ApiResponse({ status: 400, description: 'Invalid or expired reset token' })
+  @ApiResponse({ status: 200, description: 'Password reset successfully', type: MessageResponseDto })
+  @ApiResponse({ status: 400, description: 'Invalid or expired reset token', type: BadRequestErrorDto })
+  @ApiResponse({ status: 422, description: 'Validation failed on input payload', type: ValidationErrorDto })
   async resetPassword(@Body() dto: ResetPasswordDto) {
     return this.authService.resetPassword(dto.token, dto.new_password);
   }
@@ -169,9 +185,9 @@ export class AuthController {
   @ApiCookieAuth('__Secure-sid')
   @ApiOperation({ summary: 'Search users directory with pagination (Admin only)' })
   @ApiHeader({ name: 'X-Total-Count', description: 'Total matched records count header' })
-  @ApiResponse({ status: 200, description: 'Paginated user list' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 403, description: 'Forbidden: requires admin role' })
+  @ApiResponse({ status: 200, description: 'Paginated user list', type: [UserListItemDto] })
+  @ApiResponse({ status: 401, description: 'Unauthorized', type: UnauthorizedErrorDto })
+  @ApiResponse({ status: 403, description: 'Forbidden: requires admin role', type: ForbiddenErrorDto })
   async searchUsers(
     @Query() query: UsersQueryDto,
     @Res({ passthrough: true }) res: Response,

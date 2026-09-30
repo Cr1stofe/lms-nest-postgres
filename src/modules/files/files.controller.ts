@@ -22,6 +22,15 @@ import {
 import type { Request, Response } from 'express';
 import { FilesService } from './files.service.js';
 import { FileParamDto } from './dto/file-param.dto.js';
+import { FileUploadResponseDto } from './dto/file-response.dto.js';
+import {
+  ForbiddenErrorDto,
+  NotFoundErrorDto,
+  PayloadTooLargeErrorDto,
+  UnauthorizedErrorDto,
+  UnsupportedMediaTypeErrorDto,
+  ValidationErrorDto,
+} from '../../common/dto/problem-details.dto.js';
 import { Public } from '../../common/decorators/public.decorator.js';
 import { Roles } from '../../common/decorators/roles.decorator.js';
 import { AuthGuard } from '../../common/guards/auth.guard.js';
@@ -42,7 +51,7 @@ export class FilesController {
   @ApiParam({ name: 'name', description: 'Public filename with extension', example: 'course-cover.jpg' })
   @ApiResponse({ status: 200, description: 'Binary asset stream with caching headers' })
   @ApiResponse({ status: 304, description: 'Not Modified (matches ETag conditional request)' })
-  @ApiResponse({ status: 404, description: 'Public file not found' })
+  @ApiResponse({ status: 404, description: 'Public file not found', type: NotFoundErrorDto })
   async servePublic(
     @Param() params: FileParamDto,
     @Req() req: Request,
@@ -61,7 +70,7 @@ export class FilesController {
   @ApiOperation({ summary: 'Authorize and delegate private file streaming via X-Accel-Redirect (Caddy/Nginx)' })
   @ApiParam({ name: 'name', description: 'Private filename with extension', example: 'exclusive-guide.pdf' })
   @ApiResponse({ status: 200, description: 'Authorization granted with X-Accel-Redirect header' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
+  @ApiResponse({ status: 401, description: 'Unauthorized', type: UnauthorizedErrorDto })
   servePrivate(@Param() params: FileParamDto, @Res() res: Response) {
     res.setHeader('X-Accel-Redirect', params.name);
     res.status(HttpStatus.OK).end();
@@ -75,10 +84,12 @@ export class FilesController {
   @ApiHeader({ name: 'x-filename', description: 'Original filename with extension', required: true, example: 'lesson-01-intro.mp4' })
   @ApiHeader({ name: 'x-visibility', description: 'File visibility target (public or private)', required: false, example: 'public' })
   @ApiBody({ description: 'Binary payload stream (application/octet-stream)', required: true })
-  @ApiResponse({ status: 201, description: 'File uploaded and processed successfully' })
-  @ApiResponse({ status: 403, description: 'Forbidden (Admin role required)' })
-  @ApiResponse({ status: 413, description: 'Payload too large (maximum 150MB exceeded)' })
-  @ApiResponse({ status: 415, description: 'Unsupported Media Type (must be application/octet-stream)' })
+  @ApiResponse({ status: 201, description: 'File uploaded and processed successfully', type: FileUploadResponseDto })
+  @ApiResponse({ status: 401, description: 'Unauthorized', type: UnauthorizedErrorDto })
+  @ApiResponse({ status: 403, description: 'Forbidden (Admin role required)', type: ForbiddenErrorDto })
+  @ApiResponse({ status: 413, description: 'Payload too large (maximum 150MB exceeded)', type: PayloadTooLargeErrorDto })
+  @ApiResponse({ status: 415, description: 'Unsupported Media Type (must be application/octet-stream)', type: UnsupportedMediaTypeErrorDto })
+  @ApiResponse({ status: 422, description: 'Invalid filename', type: ValidationErrorDto })
   async upload(@Req() req: Request, @Res() res: Response) {
     const contentType = req.headers['content-type'];
     if (contentType !== 'application/octet-stream') {
