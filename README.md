@@ -15,7 +15,7 @@ Backend corporativo para plataforma LMS (Learning Management System), desenvolvi
 - **Armazenamento & Streaming:** Uploads binários via `application/octet-stream`, entrega com cache `ETag` (304 Not Modified) e `X-Accel-Redirect`
 - **Proxy Reverso:** [Caddy 2](https://caddyserver.com/) com terminação TLS automática
 - **Documentação Interativa:** [Swagger / OpenAPI](https://swagger.io/) em `/api/docs`
-- **Testes & Qualidade:** [Vitest](https://vitest.dev/) (38 testes E2E e unitários) e [Oxlint](https://oxc.rs/)
+- **Testes & Qualidade:** [Vitest](https://vitest.dev/) (37 testes E2E e unitários) e [Oxlint](https://oxc.rs/)
 - **CI/CD:** [GitHub Actions](https://github.com/features/actions) (Testes automatizados com PostgreSQL Service Container + Deploy contínuo via SSH nativo na VPS)
 
 ---
@@ -67,7 +67,7 @@ src/
 
 ### 1. Ambiente de Desenvolvimento com Hot-Reload (Docker Dev)
 
-Utiliza o [compose.dev.yaml](file:///Volumes/D/Projetos/backend/nodejs/lms-nest-postgres/compose.dev.yaml) com _bind mount_ de código e NestJS _watch mode_:
+Utiliza o `compose.dev.yaml` com _bind mount_ de código e NestJS _watch mode_:
 
 ```bash
 npm run docker:dev
@@ -125,7 +125,7 @@ Disparado a cada `push` e `pull_request`:
 - Sobe um container de serviço **PostgreSQL 18** no runner do GitHub.
 - Aplica migrations do Prisma (`prisma migrate deploy`) e executa o seed de testes.
 - Valida o linter (`oxlint`) e a compilação do TypeScript (`tsc`).
-- Executa a suíte de testes unitários e os **35 testes E2E** de integração.
+- Executa a suíte de testes unitários e os **37 testes E2E** de integração.
 
 ### 2. **CD Pipeline (`.github/workflows/deploy.yml`):**
 
