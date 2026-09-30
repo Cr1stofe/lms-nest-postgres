@@ -25,11 +25,13 @@ Enterprise-grade Learning Management System (LMS) backend API built with **NestJ
 
 ## 📖 Interactive API Documentation (Swagger UI)
 
+The API provides interactive OpenAPI 3.0 documentation:
+
 - **Local Development:** [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
 - **Production (Caddy TLS):** `https://your-domain.com/api/docs`
 - **OpenAPI JSON Spec:** [http://localhost:3000/api/docs-json](http://localhost:3000/api/docs-json)
 
-### 🔑 Test Seed Credentials
+### 🔑 Seed Test Credentials
 
 | Role      | Email                         | Default Password |
 | :-------- | :---------------------------- | :--------------- |
@@ -43,35 +45,47 @@ Enterprise-grade Learning Management System (LMS) backend API built with **NestJ
 
 ```
 src/
-├── common/
-│   ├── config/
-│   ├── decorators/
-│   ├── filters/
-│   ├── guards/
-│   ├── middleware/
-│   ├── prisma/
-│   ├── security/
-│   ├── mail/
-│   └── swagger/
+├── common/                  # Shared infrastructure and cross-cutting concerns
+│   ├── config/              # Centralized environment variables and secrets (env.ts)
+│   ├── decorators/          # Custom decorators (@CurrentUser, @Roles, @Public)
+│   ├── filters/             # RFC 7807 problem+json standard exception filter
+│   ├── guards/              # Authentication and RBAC authorization guards
+│   ├── middleware/          # Request logging and latency tracking middleware
+│   ├── prisma/              # Prisma database client service and module (@Global)
+│   ├── security/            # Password hashing, cryptographic tokens, and secrets
+│   ├── mail/                # Transactional email service and templates
+│   └── swagger/             # Swagger OpenAPI configuration and custom theme
 ├── modules/
-│   ├── auth/
-│   ├── lms/
-│   └── files/
-├── app.controller.ts
-├── app.module.ts
-├── setup-app.ts
-└── main.ts
+│   ├── auth/                # Authentication, sessions, password recovery, and users
+│   ├── lms/                 # Courses, lessons, student progress, and PDF certificates
+│   └── files/               # Binary uploads, media streaming, and X-Accel-Redirect
+├── app.controller.ts        # Healthcheck endpoint (GET /api/health)
+├── app.module.ts            # Root application module
+├── setup-app.ts             # Application configuration bootstrap (pipes, filters, cookies)
+└── main.ts                  # Server entrypoint bootstrap
 ```
 
 ---
 
 ## 🚦 Getting Started
 
-### 1. Development (Docker Dev)
+### 1. Development with Hot-Reload (Docker Dev)
+
+Uses `compose.dev.yaml` with host volume bind mounts and NestJS watch mode:
 
 ```bash
 npm run docker:dev
+```
+
+To run in detached background mode:
+
+```bash
 npm run docker:dev:d
+```
+
+To stop development containers:
+
+```bash
 npm run docker:down
 ```
 
@@ -79,23 +93,42 @@ npm run docker:down
 
 ### 2. Production Deployment (Docker Compose)
 
+Optimized multi-stage build without `devDependencies`, served behind Caddy reverse proxy:
+
 ```bash
 npm run docker:prod
 docker compose logs -f
 docker compose down
 ```
 
-- **Healthcheck:** `https://localhost/api/health` ou `http://localhost/api/health`
+- **API Healthcheck:** `https://localhost/api/health` or `http://localhost/api/health`
 - **PostgreSQL Port:** `localhost:5432`
 
 ---
 
 ### 3. Database Management & Migrations (Prisma)
 
+Generate and apply new migrations during local development:
+
 ```bash
 npx prisma migrate dev --name <migration_name>
+```
+
+Apply pending migrations in production or inside containers:
+
+```bash
 docker compose exec node npx prisma migrate deploy
+```
+
+Seed database with default roles, admin account, and starter courses:
+
+```bash
 npm run prisma:seed
+```
+
+Open interactive database GUI:
+
+```bash
 npx prisma studio
 ```
 
@@ -114,52 +147,58 @@ npm run build
 
 ## 🔄 CI/CD Pipelines (GitHub Actions)
 
-### 1. Continuous Integration (`.github/workflows/ci.yml`)
+Configured automated workflows in `.github/workflows/`:
 
-- Runs PostgreSQL 18 service container
-- Applies Prisma migrations and seed
-- Validates code style and TypeScript compilation (`oxlint` & `tsc`)
-- Runs 37 unit and E2E integration tests
+### 1. **Continuous Integration (`.github/workflows/ci.yml`)**
 
-### 2. Continuous Deployment (`.github/workflows/deploy.yml`)
+Triggers on every `push` and `pull_request`:
 
-- Connects to VPS via SSH (`main` branch)
-- Pulls repository updates
-- Rebuilds and restarts production containers
-- Applies pending database migrations
+- Initializes a dedicated **PostgreSQL 18** service container.
+- Applies Prisma database migrations (`prisma migrate deploy`) and seeds test fixtures.
+- Runs linter checks (`oxlint`) and TypeScript compilation (`tsc`).
+- Executes unit tests and **37 E2E integration test suites**.
 
-#### 🔑 Required GitHub Secrets:
+### 2. **Continuous Deployment (`.github/workflows/deploy.yml`)**
 
-- `SSH_HOST`: VPS public IP or domain
-- `SSH_USER`: SSH user (e.g. `ubuntu`)
-- `SSH_PRIVATE_KEY`: Private SSH key
-- `WORK_DIR`: Absolute project directory on server
-- `SSH_PORT`: SSH port (e.g. `22022`)
+Triggers automatically on `push` to the `main` branch:
+
+- Connects to the **VPS via SSH**.
+- Pulls the latest commits (`git pull origin main`).
+- Rebuilds and restarts production containers (`docker compose up --build -d`).
+- Runs pending database migrations (`prisma migrate deploy`).
+
+#### 🔑 Required GitHub Secrets (`Settings > Secrets and variables > Actions`):
+
+- `SSH_HOST`: Server public IP address or hostname.
+- `SSH_USER`: SSH login user (e.g., `ubuntu`).
+- `SSH_PRIVATE_KEY`: Private SSH authentication key.
+- `WORK_DIR`: Absolute project path on the remote host (e.g., `/home/ubuntu/lms-nest-postgres`).
+- `SSH_PORT`: SSH connection port (e.g., `22`).
 
 ---
 
-## 📡 API Endpoints
+## 📡 API Endpoints Overview
 
 ### Authentication (`/api/auth`)
 
 - `POST /api/auth/register` — Register a new student account
-- `POST /api/auth/login` — Authenticate and issue secure session cookie (`__Secure-sid`)
+- `POST /api/auth/login` — Authenticate user and issue session cookie (`__Secure-sid`)
 - `DELETE /api/auth/logout` — Invalidate active session and clear cookie
-- `GET /api/auth/session` — Retrieve current authenticated user profile
-- `PUT /api/auth/password/update` — Change password for authenticated session
+- `GET /api/auth/session` — Retrieve authenticated user profile
+- `PUT /api/auth/password/update` — Update password for authenticated session
 - `POST /api/auth/password/forgot` — Request password reset email link
 - `POST /api/auth/password/reset` — Reset password using cryptographic token
-- `GET /api/auth/users/search` — Paginated user directory search (Admin only, `X-Total-Count`)
+- `GET /api/auth/users/search` — Paginated user directory search (Admin only, includes `X-Total-Count` header)
 
 ### LMS & Courses (`/api/lms`)
 
-- `GET /api/lms/courses` — Public course catalog
-- `GET /api/lms/course/:slug` — Course syllabus, lesson list, and student progress
+- `GET /api/lms/courses` — Public course catalog with dynamic lesson counts
+- `GET /api/lms/course/:slug` — Course syllabus, lessons list, and student progress
 - `POST /api/lms/course` — Create or update course metadata (Admin only)
 - `GET /api/lms/lesson/:courseSlug/:slug` — Lesson content with next/prev curriculum navigation
 - `POST /api/lms/lesson` — Create or update a lesson (Admin only)
-- `GET /api/lms/lessons` — Consolidated list of all lessons (Admin only)
-- `POST /api/lms/lesson/complete` — Mark lesson as completed and auto-issue certificate
+- `GET /api/lms/lessons` — Consolidated list of all lessons across courses (Admin only)
+- `POST /api/lms/lesson/complete` — Mark lesson as completed and auto-issue certificate upon 100% completion
 - `DELETE /api/lms/course/reset` — Reset student course progress and revoke issued certificates
 - `GET /api/lms/certificates` — List all certificates earned by authenticated student
 - `GET /api/lms/certificate/:id` — Download high-resolution official course certificate PDF
@@ -170,6 +209,6 @@ npm run build
 - `GET /api/files/private/:name` — Authenticated private asset access via `X-Accel-Redirect` delegation
 - `POST /api/files/upload` — High-speed binary upload stream (`application/octet-stream`, Admin only, up to 150MB)
 
-### System
+### System & Diagnostics
 
 - `GET /api/health` — Application health check and uptime status
