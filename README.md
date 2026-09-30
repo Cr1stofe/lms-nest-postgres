@@ -28,8 +28,8 @@ Enterprise-grade Learning Management System (LMS) backend API built with **NestJ
 The API provides interactive OpenAPI 3.0 documentation:
 
 - **Local Development:** [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
-- **Production (Caddy TLS):** `https://your-domain.com/api/docs`
-- **OpenAPI JSON Spec:** [http://localhost:3000/api/docs-json](http://localhost:3000/api/docs-json)
+- **Production (Caddy TLS):** [https://api-veltro.cr1stofe.dev/api/docs](https://api-veltro.cr1stofe.dev/api/docs)
+- **OpenAPI JSON Spec:** [https://api-veltro.cr1stofe.dev/api/docs-json](https://api-veltro.cr1stofe.dev/api/docs-json)
 
 ### 🔑 Seed Test Credentials
 
