@@ -5,26 +5,26 @@ export function setupSwagger(app: INestApplication) {
   const config = new DocumentBuilder()
     .setTitle('Veltro LMS API')
     .setDescription(
-      'Documentação oficial da API corporativa do Veltro LMS (NestJS + PostgreSQL 18 + Prisma 7). ' +
-        'Suporte a autenticação RBAC via cookies seguros, streaming de vídeo com range requests e emissão de certificados.',
+      'Enterprise LMS Backend API built with NestJS, PostgreSQL 18, and Prisma ORM. ' +
+        'Features secure session-cookie RBAC, media streaming with X-Accel-Redirect, and dynamic PDF certificate generation.',
     )
     .setVersion('1.0.0')
     .addCookieAuth('__Secure-sid', {
       type: 'apiKey',
       in: 'cookie',
       name: '__Secure-sid',
-      description: 'Cookie seguro de sessão emitido após login',
+      description: 'Secure session cookie issued upon authentication',
     })
     .addTag(
       'Auth',
-      'Autenticação, sessões, recuperação de senhas e gestão de usuários',
+      'Authentication, session management, password recovery, and user directory',
     )
-    .addTag('LMS', 'Cursos, aulas, progresso acadêmico e certificados PDF')
+    .addTag('LMS', 'Courses, lessons, student progress tracking, and PDF certificates')
     .addTag(
       'Files',
-      'Upload streaming de arquivos e entrega segura via X-Accel-Redirect',
+      'Binary streaming uploads and secure asset delivery via X-Accel-Redirect',
     )
-    .addTag('Health', 'Verificação de integridade e status da API')
+    .addTag('Health', 'Application uptime and service health check')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

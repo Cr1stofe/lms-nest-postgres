@@ -11,8 +11,8 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CourseUpsertDto {
   @ApiProperty({
-    description: 'Identificador único do curso em formato URL-friendly',
-    example: 'html-e-css-para-iniciantes',
+    description: 'Unique URL-friendly slug identifier for the course',
+    example: 'html-css-for-beginners',
     minLength: 2,
     maxLength: 64,
   })
@@ -25,8 +25,8 @@ export class CourseUpsertDto {
   slug: string;
 
   @ApiProperty({
-    description: 'Título do curso',
-    example: 'HTML e CSS para Iniciantes',
+    description: 'Course title',
+    example: 'HTML & CSS for Beginners',
     minLength: 2,
     maxLength: 128,
   })
@@ -36,15 +36,15 @@ export class CourseUpsertDto {
   title: string;
 
   @ApiProperty({
-    description: 'Descrição detalhada do conteúdo e objetivos do curso',
-    example: 'Aprenda os fundamentos da web: marcação semântica, estilização moderna e acessibilidade.',
+    description: 'Comprehensive course overview and syllabus',
+    example: 'Master semantic HTML, modern styling techniques, and accessibility fundamentals.',
   })
   @IsString({ message: 'descrição deve ser um texto' })
   @IsNotEmpty({ message: 'descrição é obrigatória' })
   description: string;
 
   @ApiProperty({
-    description: 'Carga horária estimada em horas',
+    description: 'Estimated course workload in hours',
     example: 8,
     minimum: 0,
   })

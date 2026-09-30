@@ -37,27 +37,27 @@ export class LmsController {
   @Roles('admin')
   @Post('course')
   @ApiCookieAuth('__Secure-sid')
-  @ApiOperation({ summary: 'Criar ou atualizar curso (Exclusivo Admin)' })
-  @ApiResponse({ status: 201, description: 'Curso criado ou atualizado com sucesso' })
-  @ApiResponse({ status: 403, description: 'Acesso negado (requer papel de admin)' })
+  @ApiOperation({ summary: 'Create or update a course (Admin only)' })
+  @ApiResponse({ status: 201, description: 'Course created or updated successfully' })
+  @ApiResponse({ status: 403, description: 'Forbidden (Admin role required)' })
   async createCourse(@Body() dto: CourseUpsertDto) {
     return this.lmsService.upsertCourse(dto);
   }
 
   @Public()
   @Get('courses')
-  @ApiOperation({ summary: 'Listar catálogo de cursos com total de aulas dinâmico' })
-  @ApiResponse({ status: 200, description: 'Lista de cursos disponíveis' })
+  @ApiOperation({ summary: 'Retrieve public course catalog with dynamic lesson counts' })
+  @ApiResponse({ status: 200, description: 'List of available courses' })
   async listCourses() {
     return this.lmsService.listCourses();
   }
 
   @Public()
   @Get('course/:slug')
-  @ApiOperation({ summary: 'Consultar detalhes de um curso, lista de aulas e progresso do aluno' })
-  @ApiParam({ name: 'slug', description: 'Slug identificador do curso', example: 'html-e-css-para-iniciantes' })
-  @ApiResponse({ status: 200, description: 'Dados completos do curso, aulas e certificado emitido' })
-  @ApiResponse({ status: 404, description: 'Curso não encontrado' })
+  @ApiOperation({ summary: 'Get course details, curriculum, and authenticated student progress' })
+  @ApiParam({ name: 'slug', description: 'Course unique slug identifier', example: 'html-css-for-beginners' })
+  @ApiResponse({ status: 200, description: 'Course details, lessons list, and completion status' })
+  @ApiResponse({ status: 404, description: 'Course not found' })
   async getCourse(
     @Param('slug') slug: string,
     @CurrentUser('user_id') userId?: number,
@@ -68,9 +68,9 @@ export class LmsController {
   @Roles('admin')
   @Post('lesson')
   @ApiCookieAuth('__Secure-sid')
-  @ApiOperation({ summary: 'Criar ou atualizar aula em um curso (Exclusivo Admin)' })
-  @ApiResponse({ status: 201, description: 'Aula salva com sucesso' })
-  @ApiResponse({ status: 403, description: 'Acesso negado (requer papel de admin)' })
+  @ApiOperation({ summary: 'Create or update a course lesson (Admin only)' })
+  @ApiResponse({ status: 201, description: 'Lesson saved successfully' })
+  @ApiResponse({ status: 403, description: 'Forbidden (Admin role required)' })
   async createLesson(@Body() dto: LessonUpsertDto) {
     return this.lmsService.upsertLesson(dto);
   }
@@ -78,20 +78,20 @@ export class LmsController {
   @Roles('admin')
   @Get('lessons')
   @ApiCookieAuth('__Secure-sid')
-  @ApiOperation({ summary: 'Listar todas as aulas cadastradas no sistema (Exclusivo Admin)' })
-  @ApiResponse({ status: 200, description: 'Lista consolidada de todas as aulas' })
-  @ApiResponse({ status: 403, description: 'Acesso negado (requer papel de admin)' })
+  @ApiOperation({ summary: 'List all registered lessons across courses (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Consolidated list of all lessons' })
+  @ApiResponse({ status: 403, description: 'Forbidden (Admin role required)' })
   async listLessons() {
     return this.lmsService.listAllLessons();
   }
 
   @Public()
   @Get('lesson/:courseSlug/:lessonSlug')
-  @ApiOperation({ summary: 'Obter conteúdo e vídeo de uma aula com navegação anterior/próxima' })
-  @ApiParam({ name: 'courseSlug', description: 'Slug do curso', example: 'html-e-css-para-iniciantes' })
-  @ApiParam({ name: 'lessonSlug', description: 'Slug da aula', example: 'tags-basicas' })
-  @ApiResponse({ status: 200, description: 'Conteúdo da aula e metadados de navegação' })
-  @ApiResponse({ status: 404, description: 'Aula não encontrada' })
+  @ApiOperation({ summary: 'Get lesson content and video streaming data with prev/next navigation' })
+  @ApiParam({ name: 'courseSlug', description: 'Course slug identifier', example: 'html-css-for-beginners' })
+  @ApiParam({ name: 'lessonSlug', description: 'Lesson slug identifier', example: 'basic-tags' })
+  @ApiResponse({ status: 200, description: 'Lesson content and navigation metadata' })
+  @ApiResponse({ status: 404, description: 'Lesson not found' })
   async getLesson(
     @Param('courseSlug') courseSlug: string,
     @Param('lessonSlug') lessonSlug: string,
@@ -107,9 +107,9 @@ export class LmsController {
   @Roles('user')
   @Post('lesson/complete')
   @ApiCookieAuth('__Secure-sid')
-  @ApiOperation({ summary: 'Registrar conclusão de aula e emitir certificado automaticamente' })
-  @ApiResponse({ status: 201, description: 'Aula concluída. Retorna ID do certificado se o curso foi 100% finalizado' })
-  @ApiResponse({ status: 401, description: 'Não autorizado' })
+  @ApiOperation({ summary: 'Mark a lesson as completed and issue certificate upon 100% completion' })
+  @ApiResponse({ status: 201, description: 'Lesson marked as completed. Returns certificate ID if course reached 100%' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async completeLesson(
     @Body() dto: CompleteLessonDto,
     @CurrentUser('user_id') userId: number,
@@ -120,9 +120,9 @@ export class LmsController {
   @Roles('user')
   @Delete('course/reset')
   @ApiCookieAuth('__Secure-sid')
-  @ApiOperation({ summary: 'Resetar todo o progresso do aluno em um curso específico' })
-  @ApiResponse({ status: 200, description: 'Progresso e certificados resetados' })
-  @ApiResponse({ status: 401, description: 'Não autorizado' })
+  @ApiOperation({ summary: 'Reset all student progress and issued certificates for a course' })
+  @ApiResponse({ status: 200, description: 'Course progress and certificates reset successfully' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async resetCourse(
     @Body() dto: ResetCourseDto,
     @CurrentUser('user_id') userId: number,
@@ -133,20 +133,20 @@ export class LmsController {
   @Roles('user')
   @Get('certificates')
   @ApiCookieAuth('__Secure-sid')
-  @ApiOperation({ summary: 'Listar todos os certificados emitidos para o aluno autenticado' })
-  @ApiResponse({ status: 200, description: 'Lista de certificados do aluno' })
-  @ApiResponse({ status: 401, description: 'Não autorizado' })
+  @ApiOperation({ summary: 'List all certificates issued to the authenticated student' })
+  @ApiResponse({ status: 200, description: 'List of student certificates' })
+  @ApiResponse({ status: 401, description: 'Unauthorized' })
   async listCertificates(@CurrentUser('user_id') userId: number) {
     return this.lmsService.listUserCertificates(userId);
   }
 
   @Public()
   @Get('certificate/:id')
-  @ApiOperation({ summary: 'Download do PDF do certificado oficial de conclusão' })
-  @ApiParam({ name: 'id', description: 'UUID do certificado', example: '35c20e46-3fc0-466c-85fc-947073c06c0a' })
+  @ApiOperation({ summary: 'Download high-resolution official course certificate PDF' })
+  @ApiParam({ name: 'id', description: 'Certificate UUID', example: '35c20e46-3fc0-466c-85fc-947073c06c0a' })
   @ApiProduces('application/pdf')
-  @ApiResponse({ status: 200, description: 'Buffer do PDF em alta resolução' })
-  @ApiResponse({ status: 404, description: 'Certificado não encontrado' })
+  @ApiResponse({ status: 200, description: 'High-resolution PDF buffer' })
+  @ApiResponse({ status: 404, description: 'Certificate not found' })
   async getCertificatePdf(
     @Param('id') id: string,
     @Res() res: Response,

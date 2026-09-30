@@ -9,7 +9,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
   @ApiProperty({
-    description: 'Nome completo do aluno',
+    description: 'Full name of the user/student',
     example: 'Henrique Barros',
     minLength: 2,
     maxLength: 64,
@@ -20,7 +20,7 @@ export class RegisterDto {
   name: string;
 
   @ApiProperty({
-    description: 'Nome de usuário único no sistema',
+    description: 'Unique system username (letters, numbers, dots, hyphens, underscores)',
     example: 'henriquebarros',
     minLength: 2,
     maxLength: 32,
@@ -34,7 +34,7 @@ export class RegisterDto {
   username: string;
 
   @ApiProperty({
-    description: 'Email de acesso único',
+    description: 'Unique account email address',
     example: 'henrique.barros@exemplo.com',
   })
   @IsEmail({}, { message: 'email inválido' })
@@ -42,7 +42,7 @@ export class RegisterDto {
   email: string;
 
   @ApiProperty({
-    description: 'Senha de acesso (mínimo de 8 caracteres)',
+    description: 'Account password (minimum 8 characters)',
     example: 'P@ssw0rd123',
     minLength: 8,
     maxLength: 72,
