@@ -61,6 +61,11 @@
 		}
 	}
 
+	handle /api/docs* {
+		header Cache-Control "no-store, no-cache, must-revalidate"
+		reverse_proxy node:3000
+	}
+
 	handle /* {
 		reverse_proxy node:3000
 	}
