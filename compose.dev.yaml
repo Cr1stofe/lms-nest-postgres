@@ -9,3 +9,33 @@ services:
       - ./tsconfig.json:/app/tsconfig.json
       - /app/node_modules
     command: npm run start:dev
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: lms-caddy-dev
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - files:/files:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - node
+    env_file:
+      - .env
+    environment:
+      SERVER_NAME: localhost
+    networks:
+      - default
+      - web_gateway
+    restart: unless-stopped
+
+volumes:
+  caddy_data:
+  caddy_config:
+
+networks:
+  web_gateway:
+    external: false

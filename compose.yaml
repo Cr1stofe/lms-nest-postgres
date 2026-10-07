@@ -4,8 +4,6 @@ services:
   postgres:
     image: postgres:18-alpine
     container_name: lms-postgres
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
@@ -17,12 +15,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+    networks:
+      - default
     restart: unless-stopped
 
   node:
     build:
       context: .
       target: prod
+    container_name: veltro-lms-node-1
     volumes:
       - files:/files
     env_file:
@@ -37,6 +38,9 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - default
+      - web_gateway
     logging:
       driver: local
       options:
@@ -45,32 +49,14 @@ services:
     restart: unless-stopped
     stop_grace_period: 10s
 
-  caddy:
-    image: caddy:2-alpine
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - files:/files:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    depends_on:
-      - node
-    env_file:
-      - .env
-    logging:
-      driver: local
-      options:
-        max-size: "20m"
-        max-file: "5"
-    restart: unless-stopped
-
 volumes:
-  caddy_data:
-  caddy_config:
   files:
   postgres_data:
+
+networks:
+  default:
+  web_gateway:
+    external: true
 
 secrets:
   email_key:
