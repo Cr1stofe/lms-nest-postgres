@@ -96,8 +96,8 @@ Create the required Docker secret files for password pepper and transactional ma
 
 ```bash
 mkdir -p secrets
-echo "sua_chave_pepper_secreta_aqui" > secrets/pepper.txt
-echo "re_sua_chave_resend_api_aqui" > secrets/email_key.txt
+echo "your_strong_pepper_secret_here" > secrets/pepper.txt
+echo "re_your_resend_api_key_here" > secrets/email_key.txt
 ```
 
 ---
@@ -166,13 +166,11 @@ docker compose exec node npx prisma migrate deploy
 
 ## 🧪 Testing & Quality Assurance
 
-All unit and E2E integration test suites can be executed with:
-
 ```bash
-npm test          # Unit test suites (Vitest)
-npm run test:e2e  # E2E integration test suites (Supertest + Vitest)
-npm run lint      # High-performance linter (Oxlint)
-npm run build     # TypeScript compilation check
+npm test
+npm run test:e2e
+npm run lint
+npm run build
 ```
 
 ---
