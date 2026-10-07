@@ -27,8 +27,8 @@ Enterprise-grade Learning Management System (LMS) backend API built with **NestJ
 
 The API provides interactive OpenAPI 3.0 documentation:
 
-- **Local Development:** [http://localhost:3000/api/docs](http://localhost:3000/api/docs)
-- **Production (Caddy TLS):** [https://api-veltro.cr1stofe.dev/api/docs](https://api-veltro.cr1stofe.dev/api/docs)
+- **Local Development (via Caddy HTTPS):** [https://localhost/api/docs](https://localhost/api/docs)
+- **Production (TLS):** [https://api-veltro.cr1stofe.dev/api/docs](https://api-veltro.cr1stofe.dev/api/docs)
 - **OpenAPI JSON Spec:** [https://api-veltro.cr1stofe.dev/api/docs-json](https://api-veltro.cr1stofe.dev/api/docs-json)
 
 ### 🔑 Seed Test Credentials
@@ -37,7 +37,7 @@ The API provides interactive OpenAPI 3.0 documentation:
 | :-------- | :---------------------------- | :--------------- |
 | **Admin** | `admin@lms.com`               | `P@ssw0rd123`    |
 | **Editor**| `editor@lms.com`              | `P@ssw0rd123`    |
-| **Student**| `student@example.com`        | `P@ssw0rd123`    |
+| **Student**| `aluno@lms.com` / `henrique.barros@exemplo.com` | `P@ssw0rd123`    |
 
 ---
 
@@ -69,9 +69,42 @@ src/
 
 ## 🚦 Getting Started
 
-### 1. Development with Hot-Reload (Docker Dev)
+### 📋 Prerequisites
 
-Uses `compose.dev.yaml` with host volume bind mounts and NestJS watch mode:
+- **Node.js:** `>= 20.x`
+- **Docker & Docker Compose:** Latest stable version
+
+---
+
+### 1. Clone & Environment Setup
+
+Clone the repository and install project dependencies:
+
+```bash
+git clone https://github.com/Cr1stofe/lms-nest-postgres.git
+cd lms-nest-postgres
+npm install
+```
+
+Copy the environment variables template:
+
+```bash
+cp .env.example .env
+```
+
+Create the required Docker secret files for password pepper and transactional mail encryption:
+
+```bash
+mkdir -p secrets
+echo "your_strong_pepper_secret_here" > secrets/pepper.txt
+echo "re_your_resend_api_key_here" > secrets/email_key.txt
+```
+
+---
+
+### 2. Running Local Development (Docker Dev)
+
+Start the development stack with PostgreSQL (exposed at `127.0.0.1:5432`), NestJS (with hot-reload bind mounts), and Caddy reverse proxy:
 
 ```bash
 npm run docker:dev
@@ -83,7 +116,7 @@ To run in detached background mode:
 npm run docker:dev:d
 ```
 
-To stop development containers:
+To stop all development containers and networks:
 
 ```bash
 npm run docker:down
@@ -91,22 +124,13 @@ npm run docker:down
 
 ---
 
-### 2. Production Deployment (Docker Compose)
+### 3. Database Management & Seed (Prisma)
 
-Optimized multi-stage build without `devDependencies`, served behind Caddy reverse proxy:
+Once the containers are running, populate the database with starter courses, lessons, and test accounts:
 
 ```bash
-npm run docker:prod
-docker compose logs -f
-docker compose down
+npm run prisma:seed
 ```
-
-- **API Healthcheck:** `https://localhost/api/health` or `http://localhost/api/health`
-- **PostgreSQL Port:** `localhost:5432`
-
----
-
-### 3. Database Management & Migrations (Prisma)
 
 Generate and apply new migrations during local development:
 
@@ -114,22 +138,28 @@ Generate and apply new migrations during local development:
 npx prisma migrate dev --name <migration_name>
 ```
 
-Apply pending migrations in production or inside containers:
-
-```bash
-docker compose exec node npx prisma migrate deploy
-```
-
-Seed database with default roles, admin account, and starter courses:
-
-```bash
-npm run prisma:seed
-```
-
 Open interactive database GUI:
 
 ```bash
 npx prisma studio
+```
+
+---
+
+### 4. Production Deployment (Docker Compose)
+
+Optimized multi-stage build without `devDependencies`, running PostgreSQL in an isolated private network behind the Caddy Gateway:
+
+```bash
+npm run docker:prod
+docker compose logs -f
+npm run docker:down
+```
+
+Apply pending migrations in production inside the container:
+
+```bash
+docker compose exec node npx prisma migrate deploy
 ```
 
 ---
@@ -158,7 +188,7 @@ Automated pipelines configured via [GitHub Actions](https://github.com/features/
 
 ### Authentication (`/api/auth`)
 
-- `POST /api/auth/register` — Register a new student account
+- `POST /api/auth/user` — Register a new student account
 - `POST /api/auth/login` — Authenticate user and issue session cookie (`__Secure-sid`)
 - `DELETE /api/auth/logout` — Invalidate active session and clear cookie
 - `GET /api/auth/session` — Retrieve authenticated user profile
