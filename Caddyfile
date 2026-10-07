@@ -1,7 +1,7 @@
 {
 	email {$ACME_EMAIL}
 }
-{$SERVER_NAME} {
+{$SERVER_NAME:localhost} {
 	encode zstd gzip
 
 	header {
